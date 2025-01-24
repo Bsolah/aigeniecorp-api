@@ -6,7 +6,7 @@ import bodyParser from 'body-parser';
 
 import authRoutes from './routes/authRoutes';
 import documentRoutes from './routes/documentRoutes';
-import chatRoutes from './routes/chatRoutes';
+import aiRoutes from './routes/aiRoutes';
 
 dotenv.config();
 
@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
-app.use('/api/chat', chatRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Connect to MongoDB
 const mongoURI = process.env.MONGO_URI!;

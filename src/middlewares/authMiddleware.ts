@@ -6,16 +6,18 @@ interface DecodedToken {
   email: string;
 }
 
-const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).send('Access denied. No token provided.');
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
-    req.user = decoded;
-    next();
-  } catch (err) {
-    res.status(400).send('Invalid token.');
+  if (!token) {
+    res.status(401).send('Access denied. No token provided.');
+  } else {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
+      req.user = decoded;
+      next();
+    } catch (err) {
+      res.status(400).send('Invalid token.');
+    }
   }
 };
 

@@ -25,3 +25,7 @@ Backend: Node.js with Express.
 Database: MongoDB.
 File Storage: AWS S3 or Google Cloud Storage.
 AI: OpenAI API for chat and search.
+
+
+TO create JWT token:
+`openssl rand -base64 32`

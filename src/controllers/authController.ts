@@ -26,6 +26,5 @@ export const login = async (req: Request, res: Response) => {
     }
   } catch (error: any) {
     res.status(500).send(error.message);
-    // next(error)
   }
 };
