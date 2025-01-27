@@ -42,7 +42,6 @@ router.get(
     failureMessage: "Google authentication was not successful",
   }),
   (req, res, next) => {
-    console.log("got here");
     res.redirect(String("http://localhost:5000/api/auth/google-success"));
   }
 );
