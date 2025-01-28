@@ -1,5 +1,10 @@
 import express from 'express';
-import { register, login } from '../controllers/authController';
+import {
+  register,
+  login,
+  forgotPassword,
+  resetPassword,
+} from "../controllers/authController";
 import passport from "passport";
 import {
   googleFailed,
@@ -61,4 +66,7 @@ router.get(
     res.redirect(String(process.env.MICROSOFT_AUTH_SUCCESS_URL));
   }
 );
+
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
 export default router;

@@ -9,4 +9,11 @@ const generateAccessToken = (id: string, email: string) => {
   return token;
 };
 
+export const generateResetPasswordToken = (id: string, email: string) => {
+  const token = jwt.sign({ id, email }, process.env.JWT_SECRET!, {
+    expiresIn: "10m",
+  });
+  return token;
+};
+
 export default generateAccessToken;
