@@ -7,14 +7,14 @@ import authRoutes from "./routes/authRoutes";
 import documentRoutes from "./routes/documentRoutes";
 import aiRoutes from "./routes/aiRoutes";
 import chatRoutes from "./routes/chatRoutes";
+import articleRoutes from "./routes/articleRoutes";
 import passport from "passport";
 import "./middlewares/googleAuthenticationMiddleware";
 import "./middlewares/microsoftAuthenticationMiddleware";
 // import "./types";
 import session from "express-session";
 import errorHandler from "./utils/errorHandler";
-import cookieParser from 'cookie-parser';
-
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -29,7 +29,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
   session({
     resave: false,
-    secret: 'test-scret-key-placeholder',
+    secret: "test-scret-key-placeholder",
     cookie: {
       secure: true,
     },
@@ -44,6 +44,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/articles", articleRoutes);
 app.use("*", (req, res) => {
   res.status(404).send("Not found");
 });

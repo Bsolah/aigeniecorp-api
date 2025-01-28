@@ -85,9 +85,7 @@ export const shareDocument = async (req: Request, res: Response) => {
 export const getDocument = async (req: Request, res: Response) => {
   // router.get('/:id', authenticateUser, checkDocumentAccess, async (req, res) => {
   try {
-    const document = await Document.findById(req.params.id)
-      .populate("parent")
-      .populate("child");
+    const document = await Document.findById(req.params.id);
 
     if (!document) {
       res.status(404).json({ error: "Document not found" });
@@ -99,69 +97,6 @@ export const getDocument = async (req: Request, res: Response) => {
   }
 };
 
-export const getDocumentByTag = async (req: Request, res: Response) => {
-  try {
-    const tag = req.query?.tag as string;
-    const documents = await Document.find({
-      tags: { $in: tag.split(",") },
-    });
-    res.status(200).json({ success: true, data: documents });
-  } catch (err) {
-    res.status(500).json({ error: "Server error" });
-  }
-};
 
-export const getDocumentByCategory = async (req: Request, res: Response) => {
-  try {
-    const categories = req.query?.category as string;
-    const documents = await Document.find({
-      categories: { $in: categories.split(",") },
-    });
-    res.status(200).json({ success: true, data: documents });
-  } catch (err) {
-    res.status(500).json({ error: "Server error" });
-  }
-};
 
-export const addCommentToDocument = async (req: Request, res: Response) => {
-  try {
-    const document = await Document.findById(req.params.id);
-    if (!document) {
-      res.status(404).json({ error: "Document not found" });
-    } else {
-      if (!req.user?.id) {
-        res
-          .status(401)
-          .json({ error: "Only Authorized People can add comment" });
-      } else {
-        document.comments.push({
-          user: req.user?.id as unknown as mongoose.Types.ObjectId,
-          comment: req.body.comment,
-        });
-      }
-      await document.save();
-      await document.populate("comments.user");
-      res.status(200).json({ success: true, data: document });
-    }
-  } catch (err) {
-    res.status(500).json({ error: "Server error" });
-  }
-};
 
-export const addChildToDocument = async (req: Request, res: Response) => {
-  try {
-    if (!req.params.id) {
-      res.status(400).json({ error: "Document ID is required" });
-    }
-    const document = await Document.findById(req.params.id);
-    if (!document) {
-      res.status(404).json({ error: "Document not found" });
-    } else {
-      document.child.push(req.body.child);
-      await document.save();
-      res.status(200).json({ success: true, data: document });
-    }
-  } catch (err) {
-    res.status(500).json({ error: "Server error" });
-  }
-};

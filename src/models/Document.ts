@@ -5,11 +5,7 @@ export interface IDocument extends MongooseDocument {
   privacy: "private" | "shared";
   uploadedBy: mongoose.Types.ObjectId;
   teamAccess: mongoose.Types.ObjectId[];
-  tags: string[];
-  categories: string[];
-  comments: { user: mongoose.Types.ObjectId; comment: string }[];
-  parent: mongoose.Types.ObjectId;
-  child: mongoose.Types.ObjectId[];
+
 }
 
 const documentSchema: Schema<IDocument> = new mongoose.Schema(
@@ -21,17 +17,7 @@ const documentSchema: Schema<IDocument> = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    teamAccess: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    comments: [
-      {
-        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        comment: { type: String },
-      },
-    ],
-    tags: [{ type: String }],
-    categories: [{ type: String }],
-    parent: { type: mongoose.Schema.Types.ObjectId, ref: "Document" },
-    child: [{ type: mongoose.Schema.Types.ObjectId, ref: "Document" }],
+ 
   },
   { timestamps: true }
 );
