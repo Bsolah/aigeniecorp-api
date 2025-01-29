@@ -47,20 +47,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Routes
-app.use('/', 
-  (req, res) => {
-    //  Front end Layer will sit here
-    res.send('Welcome to the Genie Corp');
-  }
-);
-
-app.use('/landingpage', 
-  (req, res) => {
-    //  Landing Page will sit here
-    res.send('Welcome to the Genie Corp Landing Page');
-  }
-);
-
 
 app.use("/api/auth", authRoutes);
 app.use("/api/documents", documentRoutes);
