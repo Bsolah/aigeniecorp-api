@@ -9,6 +9,8 @@ import {
   getArticleByCategory,
   searchArticleByTitle,
   addCommentToArticle,
+  addUserToArticleTeam,
+  getAllArticles,
 } from "../controllers/articleController";
 import authMiddleware from "../middlewares/authMiddleware";
 
@@ -20,7 +22,8 @@ router.delete("/delete/:id", authMiddleware, deleteArticle);
 router.get("/tag", authMiddleware, getArticleByTag);
 router.get("/category", authMiddleware, getArticleByCategory);
 router.get("/search/title", authMiddleware, searchArticleByTitle);
-router.post("/comment/:id", authMiddleware, addCommentToArticle)
+router.get("/all", authMiddleware, getAllArticles);
+router.post("/comment/:id", authMiddleware, addCommentToArticle);
+router.post("/add/user/:id", authMiddleware, addUserToArticleTeam);
 router.get("/:id", authMiddleware, getArticle);
-
 export default router;
