@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import { saveChat, getChatById, deleteChatById } from '../controllers/chatController';
+import { saveChat, getChatByRoomId, getAllChatByUserId, deleteChatById } from '../controllers/chatController';
 import authMiddleware from '../middlewares/authMiddleware';
 
 const router = Router();
 
-router.post('/save/:room', authMiddleware, saveChat);
-router.get('/get/:room', authMiddleware, getChatById);
-router.delete('/remove/:room', authMiddleware, deleteChatById);
+router.post('/save/:chatRoomId',authMiddleware, saveChat);
+router.get('/get/:chatRoomId', authMiddleware, getChatByRoomId);
+router.get('/get/:userId/rooms', authMiddleware, getAllChatByUserId);
+router.delete('/remove/:chatRoomId', authMiddleware, deleteChatById);
 
 export default router;

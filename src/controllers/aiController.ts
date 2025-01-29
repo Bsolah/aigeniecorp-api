@@ -30,7 +30,6 @@ export const uploadWithAI = async (req: Request, res: Response) => {
     }
 
     const file = req.file?.buffer;
-    console.log('file ', file);
     if (!file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
