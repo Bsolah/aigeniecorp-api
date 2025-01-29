@@ -7,7 +7,6 @@ interface DecodedToken {
 }
 
 const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-
   const token = req.cookies.authToken;
   if (!token) {
     res.status(401).send('Access denied. No token provided.');
@@ -17,7 +16,7 @@ const authMiddleware = async (req: Request, res: Response, next: NextFunction) =
       req.user = decoded;
       next();
     } catch (err) {
-      res.status(400).send('Invalid token.');
+      res.status(400).send('Invalid token.').clearCookie("token").redirect('/login');
     }
   }
 };

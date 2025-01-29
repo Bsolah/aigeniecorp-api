@@ -20,8 +20,15 @@ dotenv.config();
 
 const app = express();
 
+const corsOptions = {
+  origin: 'http://localhost:5173',  // Your React app's URL
+  credentials: true,  // Allow cookies to be sent with requests
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allowed HTTP methods
+};
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
+
+
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -40,6 +47,21 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Routes
+app.use('/', 
+  (req, res) => {
+    //  Front end Layer will sit here
+    res.send('Welcome to the Genie Corp');
+  }
+);
+
+app.use('/landingpage', 
+  (req, res) => {
+    //  Landing Page will sit here
+    res.send('Welcome to the Genie Corp Landing Page');
+  }
+);
+
+
 app.use("/api/auth", authRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/ai", aiRoutes);
@@ -50,6 +72,7 @@ app.use("*", (req, res) => {
 });
 
 app.use(errorHandler);
+
 
 // Connect to MongoDB
 const mongoURI = process.env.MONGO_URI!;
