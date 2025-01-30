@@ -20,7 +20,7 @@ import path from "path";
 
 dotenv.config();
 // (process.env.NODE_ENV === "production") ? process.env.MONGODB_URI_UAT! : 
-const mongoURI = process.env.MONGO_URI!;
+const mongoURI = process.env.MONGODB_URI_UAT!;
 
 const app = express();
 
