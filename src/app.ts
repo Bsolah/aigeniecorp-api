@@ -49,7 +49,7 @@ app.use(passport.session());
 // Routes
 app.use("/testing", 
   (req, res) => {
-    res.send("Welcome to the API");
+    res.send("Testing - Welcome to the API");
   }
 );
 
