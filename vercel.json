@@ -2,14 +2,22 @@
     "version": 2,
     "builds": [
         {
+<<<<<<< Updated upstream
             "src": "src/app.ts",
+=======
+            "src": "app.js",
+>>>>>>> Stashed changes
             "use": "@vercel/node"
         }
     ],
     "routes": [
         {
             "src": "/(.*)",
+<<<<<<< Updated upstream
             "dest": "src/app.ts"
+=======
+            "dest": "/app.js"
+>>>>>>> Stashed changes
         }
     ]
 }
