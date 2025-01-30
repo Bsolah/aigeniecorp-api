@@ -47,6 +47,11 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Routes
+app.use("/testing", 
+  (req, res) => {
+    res.send("Welcome to the API");
+  }
+);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/documents", documentRoutes);
