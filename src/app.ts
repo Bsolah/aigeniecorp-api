@@ -45,10 +45,10 @@ app.use(
       secure: true,
     },
     saveUninitialized: true,
-    store: MongoStore.create({
-      mongoUrl: mongoURI,
-      collectionName: 'sessions',
-    }),
+    // store: MongoStore.create({
+    //   mongoUrl: mongoURI,
+    //   collectionName: 'sessions',
+    // }),
   })
 );
 app.use(passport.initialize());
