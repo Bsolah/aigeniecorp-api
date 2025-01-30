@@ -19,6 +19,7 @@ import path from "path";
 
 
 dotenv.config();
+const mongoURI = (process.env.NODE_ENV === "production") ? process.env.MONGODB_URI_UAT! : process.env.MONGO_URI!;
 
 const app = express();
 
@@ -44,7 +45,7 @@ app.use(
     },
     saveUninitialized: true,
     store: MongoStore.create({
-      mongoUrl: 'mongodb://your-mongo-uri',
+      mongoUrl: mongoURI,
       collectionName: 'sessions',
     }),
   })
@@ -78,7 +79,6 @@ app.use(errorHandler);
 
 
 // Connect to MongoDB
-const mongoURI = process.env.MONGODB_URI_UAT! // : process.env.MONGO_URI!;
 mongoose.connect(mongoURI)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
