@@ -78,7 +78,7 @@ app.use(errorHandler);
 
 
 // Connect to MongoDB
-const mongoURI = process.env.NODE_ENV ? process.env.MONGODB_URI_UAT! : process.env.MONGO_URI!;
+const mongoURI = process.env.MONGODB_URI_UAT! // : process.env.MONGO_URI!;
 mongoose.connect(mongoURI)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
