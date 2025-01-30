@@ -24,6 +24,27 @@ const mongoURI = process.env.MONGODB_URI_UAT!;
 
 const app = express();
 
+// Connect to MongoDB
+mongoose.connect(mongoURI)
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
+
+  app.use(
+    session({
+      resave: false,
+      secret: "test-scret-key-placeholder",
+      cookie: {
+        secure: true,
+      },
+      saveUninitialized: false,
+      store: MongoStore.create({
+        mongoUrl: mongoURI,
+        // collectionName: 'sessions',
+        ttl: 14 * 24 * 60 * 60,
+      }),
+    })
+  );
+
 // const corsOptions = {
 //   origin: 'http://localhost:5173',  // Your React app's URL
 //   credentials: true,  // Allow cookies to be sent with requests
@@ -37,20 +58,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(
-  session({
-    resave: false,
-    secret: "test-scret-key-placeholder",
-    cookie: {
-      secure: true,
-    },
-    saveUninitialized: true,
-    // store: MongoStore.create({
-    //   mongoUrl: mongoURI,
-    //   collectionName: 'sessions',
-    // }),
-  })
-);
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -78,11 +86,6 @@ app.get("*", (req, res) => {
 
 app.use(errorHandler);
 
-
-// Connect to MongoDB
-mongoose.connect(mongoURI)
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
 
 // Start Server
 const PORT = process.env.PORT || 5000;
