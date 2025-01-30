@@ -19,7 +19,8 @@ import path from "path";
 
 
 dotenv.config();
-const mongoURI = (process.env.NODE_ENV === "production") ? process.env.MONGODB_URI_UAT! : process.env.MONGO_URI!;
+// (process.env.NODE_ENV === "production") ? process.env.MONGODB_URI_UAT! : 
+const mongoURI = process.env.MONGO_URI!;
 
 const app = express();
 
@@ -61,7 +62,7 @@ app.use("/testing",
 );
 
 // Serve static frontend files
-// app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/documents", documentRoutes);
@@ -69,10 +70,10 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/articles", articleRoutes);
 
-// // Serve frontend on any non-API routes
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(__dirname, "public", "index.html"));
-// });
+// Serve frontend on any non-API routes
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 
 app.use(errorHandler);
