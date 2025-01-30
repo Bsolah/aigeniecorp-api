@@ -86,6 +86,9 @@ app.get("*", (req, res) => {
 
 app.use(errorHandler);
 
+console.log('App environment:', process.env.NODE_ENV); // Should be 'production'
+console.log('App environment:', process.env.PORT); 
+
 
 // Start Server
 const PORT = process.env.PORT || 5000;
