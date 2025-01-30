@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import bodyParser from "body-parser";
+import MongoStore from 'connect-mongo';
 import authRoutes from "./routes/authRoutes";
 import documentRoutes from "./routes/documentRoutes";
 import aiRoutes from "./routes/aiRoutes";
@@ -42,13 +43,17 @@ app.use(
       secure: true,
     },
     saveUninitialized: true,
+    store: MongoStore.create({
+      mongoUrl: 'mongodb://your-mongo-uri',
+      collectionName: 'sessions',
+    }),
   })
 );
 app.use(passport.initialize());
 app.use(passport.session());
 
 // Routes
-app.use("/testing", 
+app.use("/testing",
   (req, res) => {
     res.send("Testing - Welcome to the API");
   }
@@ -73,7 +78,7 @@ app.use(errorHandler);
 
 
 // Connect to MongoDB
-const mongoURI = process.env.MONGO_URI!;
+const mongoURI = process.env.NODE_ENV ? process.env.MONGODB_URI_UAT! : process.env.MONGO_URI!;
 mongoose.connect(mongoURI)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
