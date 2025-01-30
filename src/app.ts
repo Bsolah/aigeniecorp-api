@@ -11,22 +11,23 @@ import articleRoutes from "./routes/articleRoutes";
 import passport from "passport";
 import "./middlewares/googleAuthenticationMiddleware";
 import "./middlewares/microsoftAuthenticationMiddleware";
-// import "./types";
 import session from "express-session";
 import errorHandler from "./utils/errorHandler";
 import cookieParser from "cookie-parser";
+import path from "path";
+
 
 dotenv.config();
 
 const app = express();
 
-const corsOptions = {
-  origin: 'http://localhost:5173',  // Your React app's URL
-  credentials: true,  // Allow cookies to be sent with requests
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allowed HTTP methods
-};
-// Middleware
-app.use(cors(corsOptions));
+// const corsOptions = {
+//   origin: 'http://localhost:5173',  // Your React app's URL
+//   credentials: true,  // Allow cookies to be sent with requests
+//   methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allowed HTTP methods
+// };
+// // Middleware
+app.use(cors());
 
 
 app.use(bodyParser.json());
@@ -53,14 +54,20 @@ app.use("/testing",
   }
 );
 
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, "public")));
+
 app.use("/api/auth", authRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/articles", articleRoutes);
-app.use("*", (req, res) => {
-  res.status(404).send("Not found");
+
+// Serve frontend on any non-API routes
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
+
 
 app.use(errorHandler);
 
