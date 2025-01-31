@@ -5,12 +5,14 @@ import {
   forgotPassword,
   resetPassword,
   logout,
+  searchUserByName,
 } from "../controllers/authController";
 import passport from "passport";
 import {
   googleFailed,
   googleSuccess,
 } from "../middlewares/googleAuthenticationMiddleware";
+import authMiddleware from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
@@ -71,4 +73,5 @@ router.get(
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 router.post("/logout", logout);
+router.get("/search", authMiddleware, searchUserByName);
 export default router;

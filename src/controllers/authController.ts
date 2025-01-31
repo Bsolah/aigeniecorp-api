@@ -90,3 +90,15 @@ export const resetPassword = async (req: Request, res: Response) => {
     res.status(500).send(error.message);
   }
 };
+
+export const searchUserByName = async (req: Request, res: Response) => {
+  try {
+    const { username } = req.query;
+    const users = await User.find({
+      username: { $regex: username, $options: "i" },
+    });
+    res.json({ success: true, users });
+  } catch (error: any) {
+    res.status(500).send(error.message);
+  }
+};

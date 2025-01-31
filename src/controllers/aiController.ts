@@ -13,7 +13,6 @@ const upload = multer({ storage}).single('file');
 
 export const chatWithAI = async (req: Request, res: Response) => {
   const { query } = req.body;
-
   try {
     const result = await model.generateContent(`${query} Give response and then \nGenerate three follow-up questions the user can ask. it should be in the form r1.response  r2.followUpQuestions`);
     res.status(200).json({ result: result.response.text() });
