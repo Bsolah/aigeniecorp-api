@@ -1,14 +1,44 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Chat from '../models/Chat';
+import User from '../models/User';
+import { processChats, groupMessagesByConversation, convertToStructuredObject } from '../utils/commonFunctions';
+import { chatWithAI } from './aiController';
+import { geminiAI } from '../utils/aiModels';
 
 export const saveChat = async (req: Request, res: Response) => {
-  const { content, sender, userId } = req.body;
-  const { chatRoomId } = req.params;
+  const { content, receiverId, chatRoomId, type } = req.body;
+  const { senderId } = req.params;
 
-  try {
-    const chat = new Chat({ content, chatRoomId, sender, userId });
+  console.log('requests body ' , req.body)
+  console.log('requests params ', req.params)
+
+  try { 
+    const chat = new Chat({ content, chatRoomId, senderId, receiverId, type });
     await chat.save();
+
+    const user = await User.findById(receiverId);
+    if (!user) {
+      res.status(404).json({ error: `User not found by id ${receiverId}` });
+    }
+    
+    // Check if the user has the role 'Agent'
+    if (user?.role === 'Agent') {
+      const aiResponse = await geminiAI(content);
+      const convertedResponse = convertToStructuredObject(aiResponse.response.text())
+      const newChat = {
+        content: convertedResponse.response,
+        prompts: convertedResponse.prompts,
+        chatRoomId: null,
+        senderId: receiverId,
+        receiverId: senderId,
+        type
+      }
+      const chat = new Chat(newChat);
+
+      await chat.save();
+    }
+
     res.status(201).send(`Chat with chatRoomId ${chatRoomId} save successfully.`);
   } catch (err) {
     res.status(500).json({ message: 'Error saving chat chatRoomId ' + err });
@@ -79,26 +109,50 @@ export const getAllUserChat = async (req: Request, res: Response) => {
     // const chats = await Chat.find({
     //   users: { $elemMatch: { user: req.params.userId } },
     // });
-    const chats = await Chat.find({
-      "users.user": req.user?.id,
-    }).populate("users.user");
-    res.status(200).json({
-      success: true,
-      chats: [
-        ...chats.map((chat) => ({
-          ...chat.toJSON(),
-          users: chat.users.filter((user) => {
-            return user.user?._id.toString() !== req.user?.id;
-          }),
-        })),
-      ],
-      // ...chats.map((chat) => ({
-      //   ...chat.toJSON(),
-      //   users: chat.users.filter((user) => {
-      //     return user.user?._id.toString() !== req.user?.id;
-      //   }),
-      // })),
-    });
+    // const chats = await Chat.find({
+    //   "users.user": req.user?.id,
+    // }).populate("users.user");
+
+    // const chatsResponse = processChats(chats);
+
+    // Extract user information from the users array
+    //  const user = chats.users.find(user => user.user && user.user.username && user.user.email);
+
+    // console.log()
+    // res.status(200).json({
+    //   status: true,
+    //   chats: chatsResponse
+
+
+
+
+      // chats: [
+      //   ...chats.map((chat) => ({
+      //     ...chat.toJSON(),
+      //     // ...chat.users.filter(async (user) => {
+      //     //   const userId = user.user?._id.toString() !== req.user?.id;
+      //     //   const userItems = await User.findById(userId);
+      //     //   return userItems;
+      //     // }),
+      //   })),
+      // ],
+
+      console.log('user ', req.user)
+
+
+      const messages = await Chat.find({
+        $or: [
+          { senderId: req.user?.id },   // Find messages where you're the sender
+          { receiverId: req.user?.id }   // Find messages where you're the receiver
+        ]
+      }).populate('senderId receiverId', 'username email id image role')  // Optionally populate user details
+        .exec();
+        const chats = groupMessagesByConversation(messages, req.user?.id);
+        res.status(200).json({
+            status: true,
+            chats: chats
+          });
+
   } catch (error: any) {
     res.status(500).send(error.message);
   }
@@ -116,13 +170,13 @@ export const startChatWithUser = async (req: Request, res: Response) => {
     if (findChat) {
       res.status(200).json({
         success: true,
-        chat: {
-          ...findChat?.toJSON(),
-          users: findChat?.users.filter((user) => {
-            return user.user?._id.toString() !== req.user?.id;
-            // return true
-          }),
-        },
+        // chat: {
+        //   ...findChat?.toJSON(),
+        //   users: findChat?.users.filter((user) => {
+        //     return user.user?._id.toString() !== req.user?.id;
+        //     // return true
+        //   }),
+        // },
       });
     } else {
       const chat = await Chat.create({
@@ -133,11 +187,11 @@ export const startChatWithUser = async (req: Request, res: Response) => {
         success: true,
         chat: {
           ...chat?.toJSON(),
-          users: chat?.users.filter((user) => {
-            // console.log(user?.user?.)
-            return user.user?._id.toString() !== req.user?.id;
-            // return true
-          }),
+          // users: chat?.users.filter((user) => {
+          //   // console.log(user?.user?.)
+          //   return user.user?._id.toString() !== req.user?.id;
+          //   // return true
+          // }),
         },
       });
     }
@@ -147,86 +201,86 @@ export const startChatWithUser = async (req: Request, res: Response) => {
 };
 
 export const startChatWithBot = async (req: Request, res: Response) => {
-  const { chatroomId, bot } = req.body;
-  try {
-    const chat = await Chat.create({
-      chatRoomId: chatroomId,
-      users: [{ user: req.user?.id }, { bot }],
-    });
-    // await chat.save();
-    res.status(201).json({
-      success: true,
-      chat: {
-        ...chat?.toJSON(),
-        users: chat?.users.filter((user) => {
-          return user.user?._id.toString() !== req.user?.id;
-        }),
-      },
-    });
-  } catch (error: any) {
-    res.status(500).send(error.message);
-  }
+  // const { chatroomId, bot } = req.body;
+  // try {
+  //   const chat = await Chat.create({
+  //     chatRoomId: chatroomId,
+  //     users: [{ user: req.user?.id }, { bot }],
+  //   });
+  //   // await chat.save();
+  //   res.status(201).json({
+  //     success: true,
+  //     chat: {
+  //       ...chat?.toJSON(),
+  //       users: chat?.users.filter((user) => {
+  //         return user.user?._id.toString() !== req.user?.id;
+  //       }),
+  //     },
+  //   });
+  // } catch (error: any) {
+  //   res.status(500).send(error.message);
+  // }
 };
 
 export const addMessageToChat = async (req: Request, res: Response) => {
-  const { chatId, bot } = req.body;
-  try {
-    if (bot) {
-      const chat = await Chat.findByIdAndUpdate(
-        chatId,
-        {
-          $push: {
-            messages: {
-              sender: bot,
-              content: req.body.content,
-              type: "text",
-              timestamp: new Date(),
-            },
-          },
-        },
-        { new: true }
-      ).populate("users.user");
-      res.status(200).json({
-        success: true,
-        chat: {
-          ...chat?.toJSON(),
-          users: chat?.users.filter((user) => {
-            // console.log(user?.user?.)
-            return user.user?._id.toString() !== req.user?.id;
-            // return true
-          }),
-        },
-      });
-    } else {
-      const chat = await Chat.findByIdAndUpdate(
-        chatId,
-        {
-          $push: {
-            messages: {
-              sender: req.user?.id,
-              content: req.body.content,
-              type: "text",
-              timestamp: new Date(),
-            },
-          },
-        },
-        { new: true }
-      ).populate("users.user");
-      res.status(200).json({
-        success: true,
-        chat: {
-          ...chat?.toJSON(),
-          users: chat?.users.filter((user) => {
-            // console.log(user?.user?.)
-            return user.user?._id.toString() !== req.user?.id;
-            // return true
-          }),
-        },
-      });
-    }
-  } catch (error: any) {
-    res.status(500).send(error.message);
-  }
+  // const { chatId, bot } = req.body;
+  // try {
+  //   if (bot) {
+  //     const chat = await Chat.findByIdAndUpdate(
+  //       chatId,
+  //       {
+  //         $push: {
+  //           messages: {
+  //             sender: bot,
+  //             content: req.body.content,
+  //             type: "text",
+  //             timestamp: new Date(),
+  //           },
+  //         },
+  //       },
+  //       { new: true }
+  //     ).populate("users.user");
+  //     res.status(200).json({
+  //       success: true,
+  //       chat: {
+  //         ...chat?.toJSON(),
+  //         users: chat?.users.filter((user) => {
+  //           // console.log(user?.user?.)
+  //           return user.user?._id.toString() !== req.user?.id;
+  //           // return true
+  //         }),
+  //       },
+  //     });
+  //   } else {
+  //     const chat = await Chat.findByIdAndUpdate(
+  //       chatId,
+  //       {
+  //         $push: {
+  //           messages: {
+  //             sender: req.user?.id,
+  //             content: req.body.content,
+  //             type: "text",
+  //             timestamp: new Date(),
+  //           },
+  //         },
+  //       },
+  //       { new: true }
+  //     ).populate("users.user");
+  //     res.status(200).json({
+  //       success: true,
+  //       chat: {
+  //         ...chat?.toJSON(),
+  //         users: chat?.users.filter((user) => {
+  //           // console.log(user?.user?.)
+  //           return user.user?._id.toString() !== req.user?.id;
+  //           // return true
+  //         }),
+  //       },
+  //     });
+  //   }
+  // } catch (error: any) {
+  //   res.status(500).send(error.message);
+  // }
 };
 
 export const getChatById = async (req: Request, res: Response) => {

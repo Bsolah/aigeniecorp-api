@@ -1,9 +1,18 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
 import bcrypt from 'bcrypt';
 
+enum UserStatus {
+  ONLINE = "online",
+  AWAY = "away",
+  BUSY = "busy",
+  OFFLINE = "offline"
+}
 export interface IUser extends Document {
   username: string;
   email: string;
+  image: string;
+  role: string;
+  status: string;
   password: string;
   comparePassword(password: string): Promise<boolean>;
 }
@@ -11,6 +20,9 @@ export interface IUser extends Document {
 const userSchema: Schema<IUser> = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
+  image: { type: String, required: false }, // URL of the profile photo
+  role: { type: String, required: true, unique: true },
+  status: { type: String, enum: Object.values(UserStatus), required: false },
   password: { type: String, required: true },
 }, { timestamps: true });
 

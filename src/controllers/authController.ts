@@ -5,10 +5,10 @@ import { generateResetPasswordToken } from "../utils/generateAccessToken";
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { username, email, password } = req.body;
-    const user = new User({ username, email, password });
+    const { username, email, password, role, status } = req.body;
+    const user = new User({ username, email, password, role, status });
     await user.save();
-    res.status(201).send("User registered successfully.");
+    res.status(201).send({ message: "Registration successful", data: null });
   } catch (error: any) {
     res.status(500).send(error.message);
   }
