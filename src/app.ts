@@ -45,12 +45,12 @@ mongoose.connect(mongoURI)
     })
   );
 
-// const corsOptions = {
-//   origin: 'http://localhost:5173',  // Your React app's URL
-//   credentials: true,  // Allow cookies to be sent with requests
-//   methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allowed HTTP methods
-// };
-// // Middleware
+const corsOptions = {
+  origin: '*',  // Your React apps URL
+  credentials: true,  // Allow cookies to be sent with requests
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allowed HTTP methods
+};
+// Middleware
 app.use(cors());
 
 
