@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ES2020",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
-    "module": "ESNext",    
+    "target": "ESNext",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "module": "NodeNext",    
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
 
-    "moduleResolution": "bundler",
+    "moduleResolution": "nodenext",
 
     "outDir": "./dist",
     "rootDir": "./src"
