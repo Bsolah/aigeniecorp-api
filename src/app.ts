@@ -9,6 +9,7 @@ import documentRoutes from "./routes/documentRoutes";
 import aiRoutes from "./routes/aiRoutes";
 import chatRoutes from "./routes/chatRoutes";
 import articleRoutes from "./routes/articleRoutes";
+import folderRoutes from "./routes/folderRoutes";
 import passport from "passport";
 import "./middlewares/googleAuthenticationMiddleware";
 import "./middlewares/microsoftAuthenticationMiddleware";
@@ -45,13 +46,13 @@ mongoose.connect(mongoURI)
     })
   );
 
-// const corsOptions = {
-//   origin: 'http://localhost:5173',  // Your React app's URL
-//   credentials: true,  // Allow cookies to be sent with requests
-//   methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allowed HTTP methods
-// };
-// // Middleware
-app.use(cors());
+const corsOptions = {
+  origin: ['https://aigeniecorp-app.vercel.app', 'localhost:5173'], // Your React apps URL
+  credentials: true,  // Allow cookies to be sent with requests
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allowed HTTP methods
+};
+// Middleware
+app.use(cors(corsOptions));
 
 
 app.use(bodyParser.json());
@@ -77,6 +78,7 @@ app.use("/api/documents", documentRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/articles", articleRoutes);
+app.use("/api/folders", folderRoutes);
 
 // Serve frontend on any non-API routes
 app.get("*", (req, res) => {

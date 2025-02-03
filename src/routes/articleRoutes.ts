@@ -11,6 +11,7 @@ import {
   addCommentToArticle,
   addUserToArticleTeam,
   getAllArticles,
+  publishArticle,
 } from "../controllers/articleController";
 import authMiddleware from "../middlewares/authMiddleware";
 
@@ -26,4 +27,5 @@ router.get("/all", authMiddleware, getAllArticles);
 router.post("/comment/:id", authMiddleware, addCommentToArticle);
 router.post("/add/user/:id", authMiddleware, addUserToArticleTeam);
 router.get("/:id", authMiddleware, getArticle);
+router.post("/publish/:id", authMiddleware, publishArticle);
 export default router;

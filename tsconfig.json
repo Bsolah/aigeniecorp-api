@@ -1,24 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ES6",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
-    "module": "ES6",
+    "target": "ESNext",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "module": "NodeNext",    
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
 
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "allowImportingTsExtensions": true,
-    "useDefineForClassFields": true,
-    "noEmit": true,
-    // "resolveJsonModule": true,
-    // "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "isolatedModules": true,
-
+    "moduleResolution": "nodenext",
 
     "outDir": "./dist",
     "rootDir": "./src"

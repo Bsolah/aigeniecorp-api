@@ -14,8 +14,8 @@ export interface IArticle extends MongooseDocument {
   categories: string[];
   comments: { user: mongoose.Types.ObjectId; comment: string }[];
   parent: mongoose.Types.ObjectId;
-  child: mongoose.Types.ObjectId[];
-  type: "folder" | "file";
+  // child: mongoose.Types.ObjectId[];
+  access: "private" | "public";
 }
 
 export const articleSchema: Schema<IArticle> = new mongoose.Schema(
@@ -42,9 +42,14 @@ export const articleSchema: Schema<IArticle> = new mongoose.Schema(
     ],
     tags: [{ type: String }],
     categories: [{ type: String }],
-    parent: { type: mongoose.Schema.Types.ObjectId, ref: "Article" },
-    child: [{ type: mongoose.Schema.Types.ObjectId, ref: "Article" }],
-    type: { type: String, enum: ["folder", "file"], required: true },
+    parent: { type: mongoose.Schema.Types.ObjectId, ref: "Folder" },
+    // child: [{ type: mongoose.Schema.Types.ObjectId, ref: "Article" }],
+    access: {
+      type: String,
+      enum: ["private", "public"],
+      required: true,
+      default: "private",
+    },
   },
   { timestamps: true }
 );

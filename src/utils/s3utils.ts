@@ -12,6 +12,7 @@ const bucket = storage.bucket(bucketName);
 
   export const uploadFile = async (file: any) => {
     try {
+      console.log("file", file);
     //   const blob = bucket.file(file.originalname);
       const fileName = file.originalname || `file-${Date.now()}`;
       const blob = bucket.file(fileName);
@@ -23,7 +24,7 @@ const bucket = storage.bucket(bucketName);
       return new Promise<string>((resolve, reject) => {
         blobStream
           .on('finish', () => {
-            const publicUrl = `https://storage.googleapis.com/${bucketName}/${file.filename}`;
+            const publicUrl = `https://storage.googleapis.com/${bucketName}/${file.filename ?? fileName}`;
             resolve(publicUrl);
           })
           .on('error', (err) => {

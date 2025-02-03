@@ -1,4 +1,3 @@
-import User from "../models/User";
 
 
 export const processChats = (chats: any[]) => {
