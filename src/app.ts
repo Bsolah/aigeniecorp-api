@@ -46,12 +46,12 @@ mongoose.connect(mongoURI)
   );
 
 const corsOptions = {
-  origin: '*',  // Your React apps URL
+  origin: 'https://aigeniecorp-app.vercel.app',  // Your React apps URL
   credentials: true,  // Allow cookies to be sent with requests
   methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allowed HTTP methods
 };
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 
 
 app.use(bodyParser.json());
