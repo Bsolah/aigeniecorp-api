@@ -14,7 +14,7 @@
     "useDefineForClassFields": true,
     "noEmit": true,
     // "resolveJsonModule": true,
-    "noUnusedLocals": true,
+    // "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "isolatedModules": true,

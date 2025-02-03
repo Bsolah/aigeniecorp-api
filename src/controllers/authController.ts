@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import User, { IUser } from "../models/User";
 import { generateResetPasswordToken } from "../utils/generateAccessToken";
+import generateSecurePassword from "../utils/generateAndHashSocialAuthPassword";
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -98,6 +99,22 @@ export const searchUserByName = async (req: Request, res: Response) => {
       username: { $regex: username, $options: "i" },
     });
     res.json({ success: true, users });
+  } catch (error: any) {
+    res.status(500).send(error.message);
+  }
+};
+
+export const createAgent = async (req: Request, res: Response) => {
+  try {
+    const { email, username } = req.body;
+    const user = new User({
+      email,
+      username,
+      password: generateSecurePassword(10),
+      role: "Agent",
+    });
+    await user.save();
+    res.status(201).json({ success: true, user });
   } catch (error: any) {
     res.status(500).send(error.message);
   }

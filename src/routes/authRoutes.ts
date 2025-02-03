@@ -6,6 +6,7 @@ import {
   resetPassword,
   logout,
   searchUserByName,
+  createAgent,
 } from "../controllers/authController";
 import passport from "passport";
 import {
@@ -74,4 +75,5 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 router.post("/logout", logout);
 router.get("/search", authMiddleware, searchUserByName);
+router.post("/create-agent", authMiddleware, createAgent);
 export default router;
