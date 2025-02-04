@@ -48,9 +48,9 @@ app.use(
 );
 
 const corsOptions = {
-  origin: ["https://aigeniecorp-app.vercel.app", "localhost:5173"], // Your React apps URL
-  credentials: true, // Allow cookies to be sent with requests
-  methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
+  origin: ['https://aigeniecorp-app.vercel.app', '*', 'http://localhost:5173'], // Your React apps URL
+  credentials: true,  // Allow cookies to be sent with requests
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allowed HTTP methods
 };
 // Middleware
 app.use(cors(corsOptions));
