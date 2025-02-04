@@ -30,7 +30,7 @@ export const login = async (req: Request, res: Response) => {
       // Set HTTP-only cookie
       res.cookie("authToken", token, {
         httpOnly: true,
-        secure: false,// process.env.NODE_ENV === "production", // Ensure it's secure in production
+        secure: true,// process.env.NODE_ENV === "production", // Ensure it's secure in production
         sameSite: "none", // "strict", // Prevent CSRF attacks
         maxAge: 3600000, // 1 hour
       });
@@ -46,7 +46,7 @@ export const logout = async (req: Request, res: Response) => {
   try {
     res.clearCookie("authToken", {
       httpOnly: true,
-      secure: false,// process.env.NODE_ENV === "production", // Matches the secure flag of the cookie
+      secure: true,// process.env.NODE_ENV === "production", // Matches the secure flag of the cookie
       sameSite: "none" // "strict", // Matches the sameSite flag of the cookie
     });
     res.json({ message: "Logged out successfully" });
