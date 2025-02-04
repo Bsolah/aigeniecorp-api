@@ -27,11 +27,20 @@ export const login = async (req: Request, res: Response) => {
         { expiresIn: "1h" }
       );
 
-      // Set HTTP-only cookie
+      // // Set HTTP-only cookie
+      // res.cookie("authToken", token, {
+      //   httpOnly: true,
+      //   secure: true,// process.env.NODE_ENV === "production", // Ensure it's secure in production
+      //   sameSite: "none", // "strict", // Prevent CSRF attacks
+      //   maxAge: 3600000, // 1 hour
+      // });
+
+      const isProduction = process.env.NODE_ENV === "production";
+
       res.cookie("authToken", token, {
         httpOnly: true,
-        secure: true,// process.env.NODE_ENV === "production", // Ensure it's secure in production
-        sameSite: "none", // "strict", // Prevent CSRF attacks
+        secure: isProduction, // Only secure in production
+        sameSite: isProduction ? "none" : "lax", // "None" for cross-origin, "Lax" for local testing
         maxAge: 3600000, // 1 hour
       });
 
