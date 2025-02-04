@@ -1,4 +1,4 @@
-import Folder from "../models/folder";
+import Folder from "../models/Folder";
 import { Request, Response, NextFunction } from "express";
 
 export const createFolder = async (req: Request, res: Response) => {

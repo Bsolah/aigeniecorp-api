@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import Article from "../models/Article";
 import mongoose from "mongoose";
-import Folder from "../models/folder";
+import Folder from "../models/Folder";
 
 export const createArticle = async (req: Request, res: Response) => {
   try {
