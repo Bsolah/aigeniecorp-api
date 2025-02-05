@@ -37,7 +37,7 @@ export const addUserToOrganization = async (
   next: NextFunction
 ) => {
   try {
-    const { userId, role } = req.body;
+    const { email, role } = req.body;
     const organization = await Organization.findById(req.params.id);
     if (!organization) {
       res.status(404).json({ message: "Organization not found" });
@@ -62,18 +62,27 @@ export const addUserToOrganization = async (
           .status(401)
           .json({ message: "You are not authorized to perform this action" });
       } else {
-        const user = await User.findById(userId);
+        const user = await User.findOne({ email });
         if (!user) {
           res.status(404).json({ message: "User not found" });
         } else {
-          user.organizations.push({
-            organization:
-              organization._id as unknown as mongoose.Types.ObjectId,
-            role,
-          });
+          if (
+            user.organizations.find(
+              (org) => org.organization.toString() === req.params.id
+            )
+          ) {
+            res.status(400).json({ message: "User already in organization" });
+          } else {
+            user.organizations.push({
+              organization:
+                organization._id as unknown as mongoose.Types.ObjectId,
+              role,
+            });
+
+            await user.save();
+            res.status(200).json({ data: organization, success: true });
+          }
           // organization.users.push(req.body.userId);
-          await user.save();
-          res.status(200).json({ data: organization });
         }
       }
     }
@@ -88,9 +97,9 @@ export const getUserOrganizations = async (
   next: NextFunction
 ) => {
   try {
-    const user = await User.findById(req.user?.id).populate(
-      "organizations.organization"
-    );
+    const user = await User.findById(req.user?.id)
+      .populate("organizations.organization")
+      .select("organizations _id name email");
     if (!user) {
       res.status(404).json({ message: "User not found" });
     } else {
@@ -151,11 +160,23 @@ export const removeUserFromOrganization = async (
         if (!user) {
           res.status(404).json({ message: "User not found" });
         } else {
-          user.organizations = user.organizations.filter(
-            (org) => org.organization.toString() !== req.params.id
-          );
-          await user.save();
-          res.status(200).json({ data: organization });
+          if (
+            user.organizations.find(
+              (organization) =>
+                organization.organization.toString() === req.params.id &&
+                organization.role === "creator"
+            )
+          ) {
+            res.status(400).json({
+              message: "You cannot remove the creator of the organization",
+            });
+          } else {
+            user.organizations = user.organizations.filter(
+              (org) => org.organization.toString() !== req.params.id
+            );
+            await user.save();
+            res.status(200).json({ data: organization });
+          }
         }
       }
     }

@@ -19,56 +19,136 @@ export const processChats = (chats: any[]) => {
 };
 
 
-export const groupMessagesByConversation = (chats: any[], userId: any)  => {
+export const groupMessagesByConversation = (chats: any[], userId: any) => {
+  // Create an object to store grouped messages
+  const groupedMessages: any = {};
 
-    // Create an object to store grouped messages
-    const groupedMessages: any = {};
+  // Iterate over each chat message
+  chats.forEach((chat) => {
+    // console.log({chat, userId})
 
-    // Iterate over each chat message
-    chats.forEach(chat => {
-        // console.log({chat, userId})
+    // Generate a unique conversation key based on the sender and receiver IDs
+    const conKey = [chat.senderId._id, chat.receiverId._id].sort().join("-");
 
-        // Generate a unique conversation key based on the sender and receiver IDs
-        const conKey = [chat.senderId._id, chat.receiverId._id].sort().join('-');
+    // Initialize an empty array for the conversation if it doesn't exist yet
+    if (!groupedMessages[conKey]) {
+      groupedMessages[conKey] = {
+        id:
+          chat.senderId._id.toString() === userId
+            ? chat.receiverId._id
+            : chat.senderId._id,
+        email:
+          chat.senderId._id.toString() === userId
+            ? chat.receiverId.email
+            : chat.senderId.email,
+        name:
+          chat.senderId._id.toString() === userId
+            ? chat.receiverId.username
+            : chat.senderId.username,
+        role:
+          chat.senderId._id.toString() === userId
+            ? chat.receiverId.role
+            : chat.senderId.role,
+        status: "online",
+        // participants : [
+        //     { email: chat.senderId.email, _id: chat.senderId._id },
+        //     { email: chat.receiverId.email, _id: chat.receiverId._id },
+        // ],
+        messages: [],
+      };
+    }
 
-        // Initialize an empty array for the conversation if it doesn't exist yet
-        if (!groupedMessages[conKey]) {
-            groupedMessages[conKey] = {
-                id: chat.senderId._id === userId ? chat.senderId._id : chat.receiverId._id,
-                email: chat.senderId._id === userId ? chat.senderId.email : chat.receiverId.email,
-                name: chat.senderId._id === userId ? chat.senderId.username : chat.receiverId.username,
-                role: chat.senderId._id === userId ? chat.senderId.role : chat.receiverId.role,
-                status: "online",
-                // participants : [
-                //     { email: chat.senderId.email, _id: chat.senderId._id },
-                //     { email: chat.receiverId.email, _id: chat.receiverId._id },
-                // ],
-                messages: []
-            };
-        }
+    const modifiedChat = {
+      sender: chat.senderId.username,
+      // senderEmail: chat.senderId.email,
+      receiver: chat.receiverId.username,
+      // receiverEmail: chat.receiverId.email,
+      msg: chat.content,
+      type: chat.type,
+      createdAt: chat.createdAt,
+      attachments: chat.attachments,
+      prompts: null,
+    };
 
-        const modifiedChat = {
-            sender: chat.senderId.username,
-            receiver: chat.receiverId.username,
-            msg: chat.content,
-            type: chat.type,
-            createdAt: chat.createdAt,
-            prompts: null
-        }
+    if (chat && chat.prompts) {
+      modifiedChat["prompts"] = chat.prompts;
+    }
 
-        if(chat && chat.prompts) {
+    // Add the current chat message to the conversation array
+    groupedMessages[conKey].messages.push(modifiedChat);
+  });
 
-            modifiedChat['prompts'] = chat.prompts;
-        }
+  // Convert the grouped messages object into an array of conversations
+  return Object.values(groupedMessages);
+};
 
-        // Add the current chat message to the conversation array
-        groupedMessages[conKey].messages.push(modifiedChat);
+export const groupMessagesByConversationAndGetLatestMessage = (
+  chats: any[],
+  userId: any
+) => {
+  // Create an object to store grouped messages
+  const groupedMessages: any = {};
+
+  // Iterate over each chat message
+  chats.forEach((chat) => {
+    // console.log({chat, userId})
+
+    // Generate a unique conversation key based on the sender and receiver IDs
+    const conKey = [chat.senderId._id, chat.receiverId._id].sort().join("-");
+
+    // Initialize an empty array for the conversation if it doesn't exist yet
+    if (!groupedMessages[conKey]) {
+      groupedMessages[conKey] = {
+        id:
+          chat.senderId._id === userId
+            ? chat.senderId._id
+            : chat.receiverId._id,
+        email:
+          chat.senderId._id === userId
+            ? chat.senderId.email
+            : chat.receiverId.email,
+        name:
+          chat.senderId._id === userId
+            ? chat.senderId.username
+            : chat.receiverId.username,
+        role:
+          chat.senderId._id === userId
+            ? chat.senderId.role
+            : chat.receiverId.role,
+        status: "online",
+        // participants : [
+        //     { email: chat.senderId.email, _id: chat.senderId._id },
+        //     { email: chat.receiverId.email, _id: chat.receiverId._id },
+        // ],
+        messages: [],
+      };
+    }
+
+    const modifiedChat = {
+      sender: chat.senderId.username,
+      receiver: chat.receiverId.username,
+      msg: chat.content,
+      type: chat.type,
+      createdAt: chat.createdAt,
+      prompts: null,
+    };
+
+    if (chat && chat.prompts) {
+      modifiedChat["prompts"] = chat.prompts;
+    }
+
+    // Add the current chat message to the conversation array
+    groupedMessages[conKey].messages.push(modifiedChat);
+    groupedMessages[conKey].messages.sort((a: any, b: any) => {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
+  });
 
-    // Convert the grouped messages object into an array of conversations
-    return Object.values(groupedMessages);
-}
+  console.log(Object.values(groupedMessages));
 
+  // Convert the grouped messages object into an array of conversations
+  return Object.values(groupedMessages);
+};
 export const convertToStructuredObject = (inputString: string) => {
     console.log({inputString})
     // Extract the response part from the input string

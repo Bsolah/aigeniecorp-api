@@ -78,6 +78,7 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/articles", articleRoutes);
 app.use("/api/folders", folderRoutes);
 app.use("/api/external-integrations", externalIntegrationRoutes);
+app.use("/api/organizations", organizationRoutes);
 
 // Serve frontend on any non-API routes
 // app.get("*", (req, res) => {

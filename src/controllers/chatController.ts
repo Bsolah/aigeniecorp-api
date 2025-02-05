@@ -121,10 +121,28 @@ export const saveChatWithMedia: (
 
 export const getChatByRoomId = async (req: Request, res: Response) => {
   const { chatRoomId } = req.params;
-  const chats = await Chat.find({ chatRoomId }).sort({ timestamp: 1 }); // Sort by timestamp in ascending order
+  const { page } = req.query;
+  const skip = page ? parseInt(page.toString()) * 50 : 0;
+
+  // Sort by timestamp in ascending order
 
   try {
-    res.status(200).json({ chats });
+    if (page) {
+      const chats = await Chat.find({ chatRoomId })
+        .sort({ timestamp: 1 })
+        .skip(skip)
+        .limit(50);
+      res.status(200).json({ chats });
+    }
+    if (page) {
+      const chats = await Chat.find({ chatRoomId })
+        .sort({ timestamp: 1 })
+        .skip(skip)
+        .limit(50);
+    } else {
+      const chats = await Chat.find({ chatRoomId }).sort({ timestamp: 1 });
+      res.status(200).json({ chats });
+    }
   } catch (err) {
     res
       .status(500)
@@ -223,14 +241,24 @@ export const getAllUserChat = async (req: Request, res: Response) => {
       .populate("senderId receiverId", "username email id image role") // Optionally populate user details
       .exec();
     const chats = groupMessagesByConversation(messages, req.user?.id);
+    const modifiedChatForBasicMessge = [
+      ...chats.map((chat: any) => {
+        return {
+          ...chat,
+          messages: chat.messages[chat.messages.length - 1],
+        };
+      }),
+    ];
     res.status(200).json({
       status: true,
-      chats: chats,
+      chats: modifiedChatForBasicMessge,
     });
   } catch (error: any) {
     res.status(500).send(error.message);
   }
 };
+
+
 
 export const startChatWithUser = async (req: Request, res: Response) => {
   const { userId } = req.body;

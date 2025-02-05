@@ -11,8 +11,8 @@ import {
 const router = express.Router();
 
 router.post("/create", authMiddleware, createOrganization);
-router.post("/add-user", authMiddleware, addUserToOrganization);
-router.get("all", authMiddleware, getUserOrganizations);
+router.post("/add-user/:id", authMiddleware, addUserToOrganization);
+router.get("/all", authMiddleware, getUserOrganizations);
 router.get("/users/:id", authMiddleware, getOrganizationUsers);
 router.post("/remove-user/:id", authMiddleware, removeUserFromOrganization);
 export default router;
