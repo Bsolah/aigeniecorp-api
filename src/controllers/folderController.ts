@@ -32,7 +32,7 @@ export const editFolder = async (req: Request, res: Response) => {
     const folder = await Folder.findByIdAndUpdate(
       req.params.id,
       { name, parent },
-      { new: true }
+      { new: true },
     );
     res.status(200).json({
       success: true,

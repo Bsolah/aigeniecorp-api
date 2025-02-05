@@ -9,7 +9,7 @@ dotenv.config();
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI
+  process.env.GOOGLE_REDIRECT_URI,
 );
 
 export const redirectGoogleConnection = (req: Request, res: Response) => {
@@ -39,7 +39,7 @@ export const getGoogleAccessToken = async (req: Request, res: Response) => {
     });
     console.log(tokens);
     res.redirect(
-      `${process.env.CLIENT_URL}/dashboard?google=true&token=${tokens.access_token}&refreshToken=${tokens.refresh_token}`
+      `${process.env.CLIENT_URL}/dashboard?google=true&token=${tokens.access_token}&refreshToken=${tokens.refresh_token}`,
     );
   } catch (error: any) {
     res.status(500).send(error.message);
@@ -57,7 +57,7 @@ export const getGoogleDocs = async (req: Request, res: Response) => {
       return;
     }
     const token = await getGoogleAccessTokenFromRefreshToken(
-      integration.googleRefreshToken
+      integration.googleRefreshToken,
     );
     if (!token?.access_token) {
       res.status(404).json({
@@ -125,7 +125,7 @@ export const getGoogleDocsContent = async (req: Request, res: Response) => {
       return;
     }
     const token = await getGoogleAccessTokenFromRefreshToken(
-      integration.googleRefreshToken
+      integration.googleRefreshToken,
     );
     if (!token?.access_token) {
       res
@@ -159,7 +159,7 @@ export const getGoogleSheet = async (req: Request, res: Response) => {
       return;
     }
     const token = await getGoogleAccessTokenFromRefreshToken(
-      integration.googleRefreshToken
+      integration.googleRefreshToken,
     );
     if (!token?.access_token) {
       res.status(404).json({
@@ -198,7 +198,7 @@ export const getGoogleSheetContent = async (req: Request, res: Response) => {
       return;
     }
     const token = await getGoogleAccessTokenFromRefreshToken(
-      integration.googleRefreshToken
+      integration.googleRefreshToken,
     );
     if (!token?.access_token) {
       res

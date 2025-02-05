@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
 import User, { IUser } from "../models/User";
 import { generateResetPasswordToken } from "../utils/generateAccessToken";
 import generateSecurePassword from "../utils/generateAndHashSocialAuthPassword";
@@ -25,7 +25,7 @@ export const login = async (req: Request, res: Response) => {
       const token = jwt.sign(
         { id: user._id, email: user.email },
         process.env.JWT_SECRET!,
-        { expiresIn: "1h" }
+        { expiresIn: "1h" },
       );
 
       // // Set HTTP-only cookie
@@ -56,8 +56,8 @@ export const logout = async (req: Request, res: Response) => {
   try {
     res.clearCookie("authToken", {
       httpOnly: true,
-      secure: true,// process.env.NODE_ENV === "production", // Matches the secure flag of the cookie
-      sameSite: "none" // "strict", // Matches the sameSite flag of the cookie
+      secure: true, // process.env.NODE_ENV === "production", // Matches the secure flag of the cookie
+      sameSite: "none", // "strict", // Matches the sameSite flag of the cookie
     });
     res.json({ message: "Logged out successfully" });
   } catch (error: any) {

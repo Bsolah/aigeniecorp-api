@@ -31,7 +31,7 @@ export const saveChat = async (req: Request, res: Response) => {
     if (user?.role === "Agent") {
       const aiResponse = await geminiAI(content);
       const convertedResponse = convertToStructuredObject(
-        aiResponse.response.text()
+        aiResponse.response.text(),
       );
       const newChat = {
         content: convertedResponse.response,
@@ -57,7 +57,7 @@ export const saveChat = async (req: Request, res: Response) => {
 export const saveChatWithMedia: (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => void = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { content, receiverId, chatRoomId, type } = req.body;
@@ -79,10 +79,10 @@ export const saveChatWithMedia: (
         const aiResponse = await geminiAIMedia(
           file.buffer,
           content,
-          file.mimetype
+          file.mimetype,
         );
         const convertedResponse = convertToStructuredObject(
-          aiResponse.response.text()
+          aiResponse.response.text(),
         );
         console.log("convertedResponse ", convertedResponse);
         const newChat = {
@@ -92,7 +92,7 @@ export const saveChatWithMedia: (
           senderId: receiverId,
           receiverId: senderId,
           type,
-          attachments: url
+          attachments: url,
         };
         const chat = new Chat(newChat);
 

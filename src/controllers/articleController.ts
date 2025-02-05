@@ -24,6 +24,7 @@ export const createArticle = async (req: Request, res: Response) => {
       article,
     });
   } catch (error: any) {
+    console.log(error);
     res.status(500).send(error.message);
   }
 };
@@ -61,7 +62,7 @@ export const editArticle = async (req: Request, res: Response) => {
       const article = await Article.findByIdAndUpdate(
         req.params.id,
         { title, content, tags, categories, parent, child },
-        { new: true }
+        { new: true },
       );
       res.status(200).json({
         success: true,
@@ -98,7 +99,7 @@ export const publishArticle = async (req: Request, res: Response) => {
       const article = await Article.findByIdAndUpdate(
         articleId,
         { access },
-        { new: true }
+        { new: true },
       );
       res.status(200).json({
         success: true,
@@ -149,8 +150,6 @@ export const getArticle = async (req: Request, res: Response) => {
     })
       .populate("comments.user")
       .populate("createdBy")
-      .populate("parent")
-      .populate("child")
       .populate("teamAccess.user");
     if (!article) {
       res.status(404).json({ error: "Article not found" });

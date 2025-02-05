@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
   saveChat,
   getChatByRoomId,
@@ -26,7 +26,7 @@ router.post(
   "/save/media/:senderId",
   authMiddleware,
   upload.single("media"),
-  saveChatWithMedia
+  saveChatWithMedia,
 );
 router.get("/get/:chatRoomId", authMiddleware, getChatByRoomId);
 router.get("/get/:userId/rooms", authMiddleware, getAllChatByUserId);

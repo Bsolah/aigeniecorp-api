@@ -51,11 +51,11 @@ export const articleSchema: Schema<IArticle> = new mongoose.Schema(
       default: "private",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Article: Model<IArticle> = mongoose.model<IArticle>(
   "Article",
-  articleSchema
+  articleSchema,
 );
 export default Article;

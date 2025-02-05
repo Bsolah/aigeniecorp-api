@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
   uploadDocument,
   getDocument,
@@ -9,7 +9,7 @@ import authMiddleware from "../middlewares/authMiddleware";
 const router = Router();
 
 router.post("/upload", authMiddleware, uploadDocument);
-router.get('/:id', authMiddleware, getDocument);
-router.post('/:id/share', authMiddleware, shareDocument);
+router.get("/:id", authMiddleware, getDocument);
+router.post("/:id/share", authMiddleware, shareDocument);
 
 export default router;
