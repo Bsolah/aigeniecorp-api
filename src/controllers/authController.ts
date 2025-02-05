@@ -1,7 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
 import User, { IUser } from "../models/User";
 import { generateResetPasswordToken } from "../utils/generateAccessToken";
+import generateSecurePassword from "../utils/generateAndHashSocialAuthPassword";
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -24,7 +25,7 @@ export const login = async (req: Request, res: Response) => {
       const token = jwt.sign(
         { id: user._id, email: user.email },
         process.env.JWT_SECRET!,
-        { expiresIn: "1h" }
+        { expiresIn: "1h" },
       );
 
       // // Set HTTP-only cookie
@@ -55,8 +56,8 @@ export const logout = async (req: Request, res: Response) => {
   try {
     res.clearCookie("authToken", {
       httpOnly: true,
-      secure: true,// process.env.NODE_ENV === "production", // Matches the secure flag of the cookie
-      sameSite: "none" // "strict", // Matches the sameSite flag of the cookie
+      secure: true, // process.env.NODE_ENV === "production", // Matches the secure flag of the cookie
+      sameSite: "none", // "strict", // Matches the sameSite flag of the cookie
     });
     res.json({ message: "Logged out successfully" });
   } catch (error: any) {
@@ -107,6 +108,22 @@ export const searchUserByName = async (req: Request, res: Response) => {
       username: { $regex: username, $options: "i" },
     });
     res.json({ success: true, users });
+  } catch (error: any) {
+    res.status(500).send(error.message);
+  }
+};
+
+export const createAgent = async (req: Request, res: Response) => {
+  try {
+    const { email, username } = req.body;
+    const user = new User({
+      email,
+      username,
+      password: generateSecurePassword(10),
+      role: "Agent",
+    });
+    await user.save();
+    res.status(201).json({ success: true, user });
   } catch (error: any) {
     res.status(500).send(error.message);
   }

@@ -1,4 +1,4 @@
-import express from 'express';
+import express from "express";
 import {
   register,
   login,
@@ -6,6 +6,7 @@ import {
   resetPassword,
   logout,
   searchUserByName,
+  createAgent,
 } from "../controllers/authController";
 import passport from "passport";
 import {
@@ -23,14 +24,14 @@ router.get(
   passport.authenticate("google", {
     scope: ["profile", "email"],
     session: false,
-  })
+  }),
 );
 
 router.get(
   "/microsoft-auth",
   passport.authenticate("microsoft", {
     session: false,
-  })
+  }),
 );
 
 // google response uri
@@ -51,7 +52,7 @@ router.get(
   }),
   (req, res, next) => {
     res.redirect(String("http://localhost:5000/api/auth/google-success"));
-  }
+  },
 );
 
 router.get(
@@ -67,11 +68,12 @@ router.get(
   }),
   (error: any, req: any, res: any, next: any) => {
     res.redirect(String(process.env.MICROSOFT_AUTH_SUCCESS_URL));
-  }
+  },
 );
 
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 router.post("/logout", logout);
 router.get("/search", authMiddleware, searchUserByName);
+router.post("/create-agent", authMiddleware, createAgent);
 export default router;

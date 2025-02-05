@@ -28,7 +28,7 @@ passport.use(
       accessToken: any,
       refreshToken: any,
       profile: any,
-      callback: any
+      callback: any,
     ) => {
       try {
         if (profile.emails[0].verified != true) {
@@ -71,8 +71,8 @@ passport.use(
       } catch (error) {
         return callback(error, false);
       }
-    }
-  )
+    },
+  ),
 );
 
 passport.serializeUser((user, done) => {

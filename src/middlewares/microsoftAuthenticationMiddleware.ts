@@ -21,7 +21,7 @@ passport.use(
       accessToken: any,
       refreshToken: any,
       profile: any,
-      callback: any
+      callback: any,
     ) => {
       try {
         const user = await User.findOne({ email: profile.emails[0].value });
@@ -57,8 +57,8 @@ passport.use(
         console.log(error);
         return callback(error);
       }
-    }
-  )
+    },
+  ),
 );
 
 passport.serializeUser(function (user, done) {

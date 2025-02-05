@@ -1,9 +1,9 @@
-import { Request, Response } from 'express';
-import multer from 'multer';
-import Document from '../models/Document';
+import { Request, Response } from "express";
+import multer from "multer";
+import Document from "../models/Document";
 // import { uploadFile } from '../utils/s3utils';
 
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 import mongoose from "mongoose";
 
 dotenv.config();
@@ -95,7 +95,3 @@ export const getDocument = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Server error" });
   }
 };
-
-
-
-

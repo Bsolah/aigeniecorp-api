@@ -1,10 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import Article from "../models/Article";
 import mongoose from "mongoose";
+import Folder from "../models/Folder";
 
 export const createArticle = async (req: Request, res: Response) => {
   try {
-    const { title, content, tags, categories, parent, child, type } = req.body;
+    const { title, content, tags, categories, parent, type } = req.body;
+    const parentFolder = await Folder.findById(parent);
     const article = await Article.create({
       title,
       content,
@@ -12,15 +14,17 @@ export const createArticle = async (req: Request, res: Response) => {
       tags,
       categories,
       parent,
-      child,
       type,
     });
+    parentFolder?.articles.push(article._id as any);
+    await parentFolder?.save();
     res.status(201).json({
       success: true,
       message: "Article created successfully",
       article,
     });
   } catch (error: any) {
+    console.log(error);
     res.status(500).send(error.message);
   }
 };
@@ -58,11 +62,48 @@ export const editArticle = async (req: Request, res: Response) => {
       const article = await Article.findByIdAndUpdate(
         req.params.id,
         { title, content, tags, categories, parent, child },
-        { new: true }
+        { new: true },
       );
       res.status(200).json({
         success: true,
         message: "Article updated successfully",
+        article,
+      });
+    }
+  } catch (error: any) {
+    res.status(500).send(error.message);
+  }
+};
+
+export const publishArticle = async (req: Request, res: Response) => {
+  try {
+    const articleId = req.params.id;
+    const { access } = req.body;
+    const findAccessToArticle = await Article.findOne({
+      _id: articleId,
+      $or: [
+        { createdBy: req.user?.id },
+        {
+          $and: [
+            { "teamAccess.user": req.user?.id },
+            { "teamAccess.role": "admin" },
+          ],
+        },
+      ],
+    });
+    if (!findAccessToArticle) {
+      res
+        .status(404)
+        .json({ error: "Article not found or you don't have access" });
+    } else {
+      const article = await Article.findByIdAndUpdate(
+        articleId,
+        { access },
+        { new: true },
+      );
+      res.status(200).json({
+        success: true,
+        message: `Article is now ${access}`,
         article,
       });
     }
@@ -101,12 +142,14 @@ export const getArticle = async (req: Request, res: Response) => {
   try {
     const article = await Article.findOne({
       _id: req.params.id,
-      $or: [{ createdBy: req.user?.id }, { "teamAccess.user": req.user?.id }],
+      $or: [
+        { createdBy: req.user?.id },
+        { "teamAccess.user": req.user?.id },
+        { access: "public" },
+      ],
     })
       .populate("comments.user")
       .populate("createdBy")
-      .populate("parent")
-      .populate("child")
       .populate("teamAccess.user");
     if (!article) {
       res.status(404).json({ error: "Article not found" });
@@ -123,7 +166,11 @@ export const getArticleByTag = async (req: Request, res: Response) => {
     const tag = req.query?.tag as string;
     const articles = await Article.find({
       tags: { $in: tag.split(",") },
-      $or: [{ createdBy: req.user?.id }, { "teamAccess.user": req.user?.id }],
+      $or: [
+        { createdBy: req.user?.id },
+        { "teamAccess.user": req.user?.id },
+        { access: "public" },
+      ],
     });
     res.status(200).json({ success: true, data: articles });
   } catch (error: any) {
@@ -136,7 +183,11 @@ export const getArticleByCategory = async (req: Request, res: Response) => {
     const categories = req.query?.category as string;
     const articles = await Article.find({
       categories: { $in: categories.split(",") },
-      $or: [{ createdBy: req.user?.id }, { "teamAccess.user": req.user?.id }],
+      $or: [
+        { createdBy: req.user?.id },
+        { "teamAccess.user": req.user?.id },
+        { access: "public" },
+      ],
     });
     res.status(200).json({ success: true, data: articles });
   } catch (error: any) {
@@ -149,7 +200,11 @@ export const searchArticleByTitle = async (req: Request, res: Response) => {
     const title = req.query?.title as string;
     const articles = await Article.find({
       title: { $regex: title, $options: "i" },
-      $or: [{ createdBy: req.user?.id }, { "teamAccess.user": req.user?.id }],
+      $or: [
+        { createdBy: req.user?.id },
+        { "teamAccess.user": req.user?.id },
+        { access: "public" },
+      ],
     });
     res.status(200).json({ success: true, data: articles });
   } catch (error: any) {
