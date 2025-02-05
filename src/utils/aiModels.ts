@@ -12,14 +12,14 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const openAiClient = new OpenAI({
-  organization: process.env.OPENAI_ORG as string,
-  project: process.env.OPENAI_PROJECT as string,
+  // organization: process.env.OPENAI_ORG as string,
+  // project: process.env.OPENAI_PROJECT as string,
   apiKey: process.env.OPENAI_API_KEY as string,
 });
 
 const deepSeekClient = new OpenAI({
   baseURL: "https://api.deepseek.com",
-  apiKey: "sk-",
+  apiKey: process.env.DEEPSEEK_API_KEY as string,
 });
 
 export const geminiAI = async (query: string) => {
@@ -41,7 +41,7 @@ export const geminiAIMedia = async (
   return result;
 };
 
-const openAiChat = async (query: string) => {
+export const openAiChat = async (query: string) => {
   const result = await openAiClient.chat.completions.create({
     model: "gpt-3.5-turbo",
     messages: [
@@ -51,6 +51,7 @@ const openAiChat = async (query: string) => {
       },
     ],
   });
+  console.log(result);
   return result.choices[0].message.content;
 };
 
@@ -58,7 +59,7 @@ const openAiMedia = async (
   name: string,
   buffer: Buffer,
   content: string,
-  mimeType: string
+  mimeType: string,
 ) => {
   try {
     const file = await openAiClient.files.create({
@@ -97,7 +98,7 @@ const openAiMedia = async (
     while (true) {
       const runStatus = await openAiClient.beta.threads.runs.retrieve(
         thread.id,
-        run.id
+        run.id,
       );
       if (runStatus.status === "completed") {
         response = await openAiClient.beta.threads.messages.list(thread.id);
@@ -124,7 +125,7 @@ const openAiMedia = async (
   }
 };
 
-const deepSeekChat = async (query: string) => {
+export const deepSeekChat = async (query: string) => {
   const result = await deepSeekClient.chat.completions.create({
     model: "deepseek-chat",
     messages: [
@@ -134,6 +135,7 @@ const deepSeekChat = async (query: string) => {
       },
     ],
   });
+  console.log(result);
   return result.choices[0].message.content;
 };
 

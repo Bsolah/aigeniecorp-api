@@ -8,7 +8,7 @@ import {
   convertToStructuredObject,
 } from "../utils/commonFunctions";
 import { chatWithAI } from "./aiController";
-import { geminiAI, geminiAIMedia } from "../utils/aiModels";
+import { deepSeekChat, geminiAI, geminiAIMedia, openAiChat } from "../utils/aiModels";
 import { uploadFile } from "../utils/s3utils";
 
 export const saveChat = async (req: Request, res: Response) => {
@@ -29,7 +29,10 @@ export const saveChat = async (req: Request, res: Response) => {
 
     // Check if the user has the role 'Agent'
     if (user?.role === "Agent") {
-      const aiResponse = await geminiAI(content);
+      // const aiResponse = await geminiAI(content);
+      const aiResponse = await deepSeekChat(content)
+      console.log("aiResponse ", aiResponse);
+      return res.status(200).json({ aiResponse });
       const convertedResponse = convertToStructuredObject(
         aiResponse.response.text(),
       );
