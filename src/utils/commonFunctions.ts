@@ -26,27 +26,27 @@ export const groupMessagesByConversation = (chats: any[], userId: any) => {
     // console.log({chat, userId})
 
     // Generate a unique conversation key based on the sender and receiver IDs
-    const conKey = [chat.senderId._id, chat.receiverId._id].sort().join("-");
+    const conKey = [chat.senderId?._id, chat.receiverId?._id].sort().join("-");
 
     // Initialize an empty array for the conversation if it doesn't exist yet
     if (!groupedMessages[conKey]) {
       groupedMessages[conKey] = {
         id:
-          chat.senderId._id === userId
-            ? chat.senderId._id
-            : chat.receiverId._id,
+          chat.senderId?._id === userId
+            ? chat.senderId?._id
+            : chat.receiverId?._id,
         email:
-          chat.senderId._id === userId
-            ? chat.senderId.email
-            : chat.receiverId.email,
+          chat.senderId?._id === userId
+            ? chat.senderId?.email
+            : chat.receiverId?.email,
         name:
-          chat.senderId._id === userId
-            ? chat.senderId.username
-            : chat.receiverId.username,
+          chat.senderId?._id === userId
+            ? chat.senderId?.username
+            : chat.receiverId?.username,
         role:
-          chat.senderId._id === userId
-            ? chat.senderId.role
-            : chat.receiverId.role,
+          chat.senderId?._id === userId
+            ? chat.senderId?.role
+            : chat.receiverId?.role,
         status: "online",
         // participants : [
         //     { email: chat.senderId.email, _id: chat.senderId._id },
@@ -57,9 +57,9 @@ export const groupMessagesByConversation = (chats: any[], userId: any) => {
     }
 
     const modifiedChat = {
-      sender: chat.senderId.username,
-      receiver: chat.receiverId.username,
-      msg: chat.content,
+      sender: chat.senderId?.username,
+      receiver: chat.receiverId?.username,
+      msg: chat?.content,
       type: chat.type,
       createdAt: chat.createdAt,
       prompts: null,
