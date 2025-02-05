@@ -36,7 +36,7 @@ export const saveChat = async (req: Request, res: Response) => {
       const newChat = {
         content: convertedResponse.response,
         prompts: convertedResponse.prompts,
-        chatRoomId: null,
+        chatRoomId: chatRoomId,
         senderId: receiverId,
         receiverId: senderId,
         type,
@@ -121,7 +121,9 @@ export const saveChatWithMedia: (
 
 export const getChatByRoomId = async (req: Request, res: Response) => {
   const { chatRoomId } = req.params;
-  const chats = await Chat.find({ chatRoomId }).sort({ timestamp: 1 }); // Sort by timestamp in ascending order
+  const chats = await Chat.find({ chatRoomId })
+    .sort({ timestamp: 1 })
+    .populate("senderId receiverId", "username email id image role"); // Sort by timestamp in ascending order
 
   try {
     res.status(200).json({ chats });
