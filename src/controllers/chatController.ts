@@ -139,7 +139,13 @@ export const getAllChatByUserId = async (req: Request, res: Response) => {
   try {
     const chatRooms = await Chat.aggregate([
       {
-        $match: { userId: new mongoose.Types.ObjectId(userId) }, // Find chats for this user
+        // $match: { userId: new mongoose.Types.ObjectId(userId) }, // Find chats for this user
+        $match: {
+          $or: [
+            { senderId: new mongoose.Types.ObjectId(userId) }, // Find messages where you're the sender
+            { receiverId: new mongoose.Types.ObjectId(userId) }, // Find messages where you're the receiver
+          ],
+        },
       },
       {
         $sort: { timestamp: 1 }, // Sort messages by time
