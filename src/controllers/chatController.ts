@@ -148,16 +148,41 @@ export const getAllChatByUserId = async (req: Request, res: Response) => {
         },
       },
       {
-        $sort: { timestamp: 1 }, // Sort messages by time
+        $sort: { createdAt: -1 }, // Sort messages by time
+      },
+      {
+        $lookup: {
+          from: "users", // Collection to join
+          localField: "senderId", // Field in 'messages'
+          foreignField: "_id", // Matching field in 'users'
+          as: "sender", // Output array name
+        },
+      },
+      {
+        $lookup: {
+          from: "users", // Collection to join
+          localField: "receiverId", // Field in 'messages'
+          foreignField: "_id", // Matching field in 'users'
+          as: "receiver", // Output array name
+        },
+      },
+      {
+        $unwind: "$sender", // Deconstruct the array
+      },
+      {
+        $unwind: "$receiver", // Deconstruct the array
       },
       {
         $group: {
           _id: "$chatRoomId", // Group messages by chatRoomId
           messages: {
-            $push: {
+            $first: {
               sender: "$sender",
+              receiver: "$receiver",
               content: "$content",
-              timestamp: "$timestamp",
+              timestamp: "$createdAt",
+              attachments: "$attachments",
+              prompts: "$prompts",
             },
           },
         },
