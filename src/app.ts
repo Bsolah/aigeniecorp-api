@@ -9,6 +9,7 @@ import documentRoutes from "./routes/documentRoutes";
 import aiRoutes from "./routes/aiRoutes";
 import chatRoutes from "./routes/chatRoutes";
 import articleRoutes from "./routes/articleRoutes";
+import leadRoutes from "./routes/leadRoutes";
 import passport from "passport";
 import "./middlewares/googleAuthenticationMiddleware";
 import "./middlewares/microsoftAuthenticationMiddleware";
@@ -45,8 +46,10 @@ mongoose.connect(mongoURI)
     })
   );
 
+  console.log('node ', process.env.FRONT_END)
+
 const corsOptions = {
-  origin: ['https://aigeniecorp-app.vercel.app', '*', 'http://localhost:5173'], // Your React apps URL
+  origin: process.env.FRONT_END, // Your React apps URL
   credentials: true,  // Allow cookies to be sent with requests
   methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allowed HTTP methods
 };
@@ -72,11 +75,12 @@ app.use("/testing",
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/api/auth", authRoutes);
-app.use("/api/documents", documentRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/article", articleRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/chat", chatRoutes);
-app.use("/api/articles", articleRoutes);
+app.use("/api/document", documentRoutes);
+app.use("/api/lead", leadRoutes);
 
 // Serve frontend on any non-API routes
 app.get("*", (req, res) => {
