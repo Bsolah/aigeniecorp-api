@@ -46,6 +46,8 @@ mongoose.connect(mongoURI)
     })
   );
 
+  console.log('node ', process.env.FRONT_END)
+
 const corsOptions = {
   origin: process.env.FRONT_END, // Your React apps URL
   credentials: true,  // Allow cookies to be sent with requests
