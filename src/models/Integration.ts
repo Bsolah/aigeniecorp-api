@@ -10,6 +10,8 @@ const integrationSchema: Schema<IIntegration> = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 });
 
-
-const Integration = mongoose.model<IIntegration>("Integration", integrationSchema);
+const Integration = mongoose.model<IIntegration>(
+  "Integration",
+  integrationSchema,
+);
 export default Integration;

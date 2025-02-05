@@ -1,9 +1,9 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import cors from 'cors';
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import cors from "cors";
 import bodyParser from "body-parser";
-import MongoStore from 'connect-mongo';
+import MongoStore from "connect-mongo";
 import authRoutes from "./routes/authRoutes";
 import documentRoutes from "./routes/documentRoutes";
 import aiRoutes from "./routes/aiRoutes";
@@ -12,6 +12,7 @@ import articleRoutes from "./routes/articleRoutes";
 import folderRoutes from "./routes/folderRoutes";
 import externalIntegrationRoutes from "./routes/externalIntegrationRoutes";
 import organizationRoutes from "./routes/organizationRoutes";
+import leadRoutes from "./routes/leadRoutes";
 import passport from "passport";
 import "./middlewares/googleAuthenticationMiddleware";
 import "./middlewares/microsoftAuthenticationMiddleware";
@@ -45,13 +46,15 @@ app.use(
       // collectionName: 'sessions',
       ttl: 14 * 24 * 60 * 60,
     }),
-  })
+  }),
 );
 
+console.log("node ", process.env.FRONT_END);
+
 const corsOptions = {
-  origin: ['https://aigeniecorp-app.vercel.app', '*', 'http://localhost:5173'], // Your React apps URL
-  credentials: true,  // Allow cookies to be sent with requests
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allowed HTTP methods
+  origin: process.env.FRONT_END, // Your React apps URL
+  credentials: true, // Allow cookies to be sent with requests
+  methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
 };
 // Middleware
 app.use(cors(corsOptions));
@@ -71,26 +74,25 @@ app.use("/testing", (req, res) => {
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/api/auth", authRoutes);
-app.use("/api/documents", documentRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/articles", articleRoutes);
 app.use("/api/folders", folderRoutes);
 app.use("/api/external-integrations", externalIntegrationRoutes);
 app.use("/api/organizations", organizationRoutes);
+app.use("/api/document", documentRoutes);
+app.use("/api/lead", leadRoutes);
 
 // Serve frontend on any non-API routes
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(__dirname, "public", "index.html"));
-// });
-
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 app.use(errorHandler);
 
-console.log('App environment:', process.env.NODE_ENV); // Should be 'production'
-console.log('App environment:', process.env.PORT); 
-
+console.log("App environment:", process.env.NODE_ENV); // Should be 'production'
+console.log("App environment:", process.env.PORT);
 
 // Start Server
 const PORT = process.env.PORT || 5000;

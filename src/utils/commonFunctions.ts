@@ -1,23 +1,21 @@
-
-
 export const processChats = (chats: any[]) => {
-    return chats.map((chat) => {
-        // Extract user information from the users array
-        const user = chat.users.find((user: any) => user.user && user.user.username && user.user.email);
+  return chats.map((chat) => {
+    // Extract user information from the users array
+    const user = chat.users.find(
+      (user: any) => user.user && user.user.username && user.user.email,
+    );
 
-
-        // If user exists, include username and email in the chat object
-        return {
-            id: chat._id,
-            name: user.user.username, // Add username
-            email: user.user.email, // Add email
-            status: user.user.status || "online",
-            thumb: user.user.image || null,
-            messages: chat.messages,
-        };
-    });
+    // If user exists, include username and email in the chat object
+    return {
+      id: chat._id,
+      name: user.user.username, // Add username
+      email: user.user.email, // Add email
+      status: user.user.status || "online",
+      thumb: user.user.image || null,
+      messages: chat.messages,
+    };
+  });
 };
-
 
 export const groupMessagesByConversation = (chats: any[], userId: any) => {
   // Create an object to store grouped messages
@@ -82,97 +80,38 @@ export const groupMessagesByConversation = (chats: any[], userId: any) => {
   return Object.values(groupedMessages);
 };
 
-export const groupMessagesByConversationAndGetLatestMessage = (
-  chats: any[],
-  userId: any
-) => {
-  // Create an object to store grouped messages
-  const groupedMessages: any = {};
 
-  // Iterate over each chat message
-  chats.forEach((chat) => {
-    // console.log({chat, userId})
-
-    // Generate a unique conversation key based on the sender and receiver IDs
-    const conKey = [chat.senderId._id, chat.receiverId._id].sort().join("-");
-
-    // Initialize an empty array for the conversation if it doesn't exist yet
-    if (!groupedMessages[conKey]) {
-      groupedMessages[conKey] = {
-        id:
-          chat.senderId._id === userId
-            ? chat.senderId._id
-            : chat.receiverId._id,
-        email:
-          chat.senderId._id === userId
-            ? chat.senderId.email
-            : chat.receiverId.email,
-        name:
-          chat.senderId._id === userId
-            ? chat.senderId.username
-            : chat.receiverId.username,
-        role:
-          chat.senderId._id === userId
-            ? chat.senderId.role
-            : chat.receiverId.role,
-        status: "online",
-        // participants : [
-        //     { email: chat.senderId.email, _id: chat.senderId._id },
-        //     { email: chat.receiverId.email, _id: chat.receiverId._id },
-        // ],
-        messages: [],
-      };
-    }
-
-    const modifiedChat = {
-      sender: chat.senderId.username,
-      receiver: chat.receiverId.username,
-      msg: chat.content,
-      type: chat.type,
-      createdAt: chat.createdAt,
-      prompts: null,
-    };
-
-    if (chat && chat.prompts) {
-      modifiedChat["prompts"] = chat.prompts;
-    }
-
-    // Add the current chat message to the conversation array
-    groupedMessages[conKey].messages.push(modifiedChat);
-    groupedMessages[conKey].messages.sort((a: any, b: any) => {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
-  });
-
-  console.log(Object.values(groupedMessages));
-
-  // Convert the grouped messages object into an array of conversations
-  return Object.values(groupedMessages);
-};
 export const convertToStructuredObject = (inputString: string) => {
-    console.log({inputString})
-    // Extract the response part from the input string
-    const responseMatch = inputString.split('r1');
+  console.log({ inputString });
+  // Extract the response part from the input string
+  const responseMatch = inputString.split("r1");
 
-    console.log({responseMatch})
-    const response = responseMatch ? responseMatch[1].trim().replace(/^\.response:\s*/, ''): '';
-    console.log({response})
-    
-    // Extract the follow-up questions part from the input string
-    const followUpQuestionsString = responseMatch ? responseMatch[2].replace(/^\.followUpQuestions:\s*/, '') : '';
-    console.log({followUpQuestionsString})
-    
-    // Split the follow-up questions into an array by identifying the pattern "1. ", "2. ", etc.
-    const followUpQuestions = followUpQuestionsString
-    .split('. ') // Split by ". " to separate each question
-    .filter(question => question) // Remove empty elements
-    .map(question => question = question.trim().substring(0, (question.length-2))); // Trim any leading/trailing spaces
-    
-    console.log({followUpQuestions})
+  console.log({ responseMatch });
+  const response = responseMatch
+    ? responseMatch[1].trim().replace(/^\.response:\s*/, "")
+    : "";
+  console.log({ response });
 
-    // Return the structured object
-    return {
-      response: response,
-      prompts: followUpQuestions
-    };
-  }
+  // Extract the follow-up questions part from the input string
+  const followUpQuestionsString = responseMatch
+    ? responseMatch[2].replace(/^\.followUpQuestions:\s*/, "")
+    : "";
+  console.log({ followUpQuestionsString });
+
+  // Split the follow-up questions into an array by identifying the pattern "1. ", "2. ", etc.
+  const followUpQuestions = followUpQuestionsString
+    .split(". ") // Split by ". " to separate each question
+    .filter((question) => question) // Remove empty elements
+    .map(
+      (question) =>
+        (question = question.trim().substring(0, question.length - 2)),
+    ); // Trim any leading/trailing spaces
+
+  console.log({ followUpQuestions });
+
+  // Return the structured object
+  return {
+    response: response,
+    prompts: followUpQuestions,
+  };
+};

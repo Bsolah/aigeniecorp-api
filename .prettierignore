@@ -1,0 +1,10 @@
+node_modules
+dist
+build
+coverage
+public
+README.md
+plated-mystery.json
+package-lock.json
+package.json
+vercel.json

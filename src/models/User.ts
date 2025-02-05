@@ -1,11 +1,11 @@
-import mongoose, { Document, Schema, Model } from 'mongoose';
-import bcrypt from 'bcrypt';
+import mongoose, { Document, Schema, Model } from "mongoose";
+import bcrypt from "bcrypt";
 
 enum UserStatus {
   ONLINE = "online",
   AWAY = "away",
   BUSY = "busy",
-  OFFLINE = "offline"
+  OFFLINE = "offline",
 }
 export interface IUser extends Document {
   username: string;
@@ -42,15 +42,17 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.pre<IUser>('save', async function (next) {
-  if (!this.isModified('password')) return next();
+userSchema.pre<IUser>("save", async function (next) {
+  if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
-userSchema.methods.comparePassword = async function (password: string): Promise<boolean> {
+userSchema.methods.comparePassword = async function (
+  password: string,
+): Promise<boolean> {
   return bcrypt.compare(password, this.password);
 };
 
-const User: Model<IUser> = mongoose.model<IUser>('User', userSchema);
+const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
 export default User;

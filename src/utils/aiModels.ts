@@ -24,7 +24,7 @@ const deepSeekClient = new OpenAI({
 
 export const geminiAI = async (query: string) => {
   const result = await model.generateContent(
-    `${query} Give response and then \nGenerate three follow-up questions that are less than 40 characters that the user can ask. it should be in the form r1.response  r1.followUpQuestions`
+    `${query} Give response and then \nGenerate three follow-up questions that are less than 40 characters that the user can ask. it should be in the form r1.response  r1.followUpQuestions`,
   );
   return result;
 };
@@ -32,7 +32,7 @@ export const geminiAI = async (query: string) => {
 export const geminiAIMedia = async (
   buffer: Buffer,
   content: string,
-  mimeType: string
+  mimeType: string,
 ) => {
   const result = await model.generateContent([
     `${content} Give response and then \nGenerate three follow-up questions that are less than 40 characters that the user can ask. it should be in the form r1.response  r1.followUpQuestions`,
