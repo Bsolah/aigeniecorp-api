@@ -11,6 +11,7 @@ import chatRoutes from "./routes/chatRoutes";
 import articleRoutes from "./routes/articleRoutes";
 import folderRoutes from "./routes/folderRoutes";
 import externalIntegrationRoutes from "./routes/externalIntegrationRoutes";
+import leadRoutes from "./routes/leadRoutes";
 import passport from "passport";
 import "./middlewares/googleAuthenticationMiddleware";
 import "./middlewares/microsoftAuthenticationMiddleware";
@@ -47,8 +48,10 @@ app.use(
   })
 );
 
+  console.log('node ', process.env.FRONT_END)
+
 const corsOptions = {
-  origin: ['https://aigeniecorp-app.vercel.app', '*', 'http://localhost:5173'], // Your React apps URL
+  origin: process.env.FRONT_END, // Your React apps URL
   credentials: true,  // Allow cookies to be sent with requests
   methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allowed HTTP methods
 };
@@ -70,13 +73,15 @@ app.use("/testing", (req, res) => {
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/api/auth", authRoutes);
-app.use("/api/documents", documentRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/article", articleRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/articles", articleRoutes);
 app.use("/api/folders", folderRoutes);
 app.use("/api/external-integrations", externalIntegrationRoutes);
+app.use("/api/document", documentRoutes);
+app.use("/api/lead", leadRoutes);
 
 // Serve frontend on any non-API routes
 // app.get("*", (req, res) => {
