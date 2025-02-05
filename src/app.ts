@@ -11,6 +11,7 @@ import chatRoutes from "./routes/chatRoutes";
 import articleRoutes from "./routes/articleRoutes";
 import folderRoutes from "./routes/folderRoutes";
 import externalIntegrationRoutes from "./routes/externalIntegrationRoutes";
+import organizationRoutes from "./routes/organizationRoutes";
 import passport from "passport";
 import "./middlewares/googleAuthenticationMiddleware";
 import "./middlewares/microsoftAuthenticationMiddleware";
