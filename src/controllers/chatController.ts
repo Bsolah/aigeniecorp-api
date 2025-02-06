@@ -223,7 +223,9 @@ export const getAllChatByUserId = async (req: Request, res: Response) => {
           messages: {
             $first: {
               sender: "$sender.username",
+              senderId: "$sender._id",
               receiver: "$receiver.username",
+              receiverId: "$receiver._id",
               msg: "$content",
               createdAt: "$createdAt",
               type: "$type",
