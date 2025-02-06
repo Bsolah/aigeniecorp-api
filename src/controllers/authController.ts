@@ -106,7 +106,7 @@ export const searchUserByName = async (req: Request, res: Response) => {
     const { username } = req.query;
     const users = await User.find({
       username: { $regex: username, $options: "i" },
-    });
+    }).select("username email");
     res.json({ success: true, users });
   } catch (error: any) {
     res.status(500).send(error.message);

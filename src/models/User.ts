@@ -15,6 +15,10 @@ export interface IUser extends Document {
   status: string;
   password: string;
   comparePassword(password: string): Promise<boolean>;
+  organizations: {
+    organization: mongoose.Types.ObjectId;
+    role: "creator" | "admin" | "editor" | "viewer";
+  }[];
 }
 
 const userSchema: Schema<IUser> = new mongoose.Schema(
@@ -22,11 +26,20 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     image: { type: String, required: false }, // URL of the profile photo
-    role: { type: String, required: true, unique: true },
+    role: { type: String, },
     status: { type: String, enum: Object.values(UserStatus), required: false },
     password: { type: String, required: true },
+    organizations: [
+      {
+        organization: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Organization",
+        },
+        role: { type: String, enum: ["creator", "admin", "editor", "viewer"] },
+      },
+    ],
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 userSchema.pre<IUser>("save", async function (next) {

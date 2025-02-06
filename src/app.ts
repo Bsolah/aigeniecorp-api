@@ -11,6 +11,7 @@ import chatRoutes from "./routes/chatRoutes";
 import articleRoutes from "./routes/articleRoutes";
 import folderRoutes from "./routes/folderRoutes";
 import externalIntegrationRoutes from "./routes/externalIntegrationRoutes";
+import organizationRoutes from "./routes/organizationRoutes";
 import leadRoutes from "./routes/leadRoutes";
 import passport from "passport";
 import "./middlewares/googleAuthenticationMiddleware";
@@ -79,6 +80,7 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/articles", articleRoutes);
 app.use("/api/folders", folderRoutes);
 app.use("/api/external-integrations", externalIntegrationRoutes);
+app.use("/api/organizations", organizationRoutes);
 app.use("/api/document", documentRoutes);
 app.use("/api/lead", leadRoutes);
 

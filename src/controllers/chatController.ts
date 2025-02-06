@@ -8,7 +8,7 @@ import {
   convertToStructuredObject,
 } from "../utils/commonFunctions";
 import { chatWithAI } from "./aiController";
-import { geminiAI, geminiAIMedia } from "../utils/aiModels";
+import { deepSeekChat, geminiAI, geminiAIMedia, openAiChat } from "../utils/aiModels";
 import { uploadFile } from "../utils/s3utils";
 
 export const saveChat = async (req: Request, res: Response) => {
@@ -30,13 +30,16 @@ export const saveChat = async (req: Request, res: Response) => {
     // Check if the user has the role 'Agent'
     if (user?.role === "Agent") {
       const aiResponse = await geminiAI(content);
+      // const aiResponse = await deepSeekChat(content)
+      // console.log("aiResponse ", aiResponse);
+      // return res.status(200).json({ aiResponse });
       const convertedResponse = convertToStructuredObject(
         aiResponse.response.text(),
       );
       const newChat = {
         content: convertedResponse.response,
         prompts: convertedResponse.prompts,
-        chatRoomId: null,
+        chatRoomId: chatRoomId,
         senderId: receiverId,
         receiverId: senderId,
         type,
@@ -121,10 +124,26 @@ export const saveChatWithMedia: (
 
 export const getChatByRoomId = async (req: Request, res: Response) => {
   const { chatRoomId } = req.params;
-  const chats = await Chat.find({ chatRoomId }).sort({ timestamp: 1 }); // Sort by timestamp in ascending order
+   // Sort by timestamp in ascending order
+  const { page } = req.query;
+  const skip = page ? parseInt(page.toString()) * 50 : 0;
+
+  // Sort by timestamp in ascending order
 
   try {
-    res.status(200).json({ chats });
+    if (page) {
+      const chats = await Chat.find({ chatRoomId })
+        .sort({ timestamp: 1 })
+        .populate("senderId receiverId", "username email id image role")
+        .skip(skip)
+        .limit(50);
+      res.status(200).json({ chats });
+    } else {
+      const chats = await Chat.find({ chatRoomId })
+        .populate("senderId receiverId", "username email id image role")
+        .sort({ timestamp: 1 });
+      res.status(200).json({ chats });
+    }
   } catch (err) {
     res
       .status(500)
@@ -137,19 +156,50 @@ export const getAllChatByUserId = async (req: Request, res: Response) => {
   try {
     const chatRooms = await Chat.aggregate([
       {
-        $match: { userId: new mongoose.Types.ObjectId(userId) }, // Find chats for this user
+        // $match: { userId: new mongoose.Types.ObjectId(userId) }, // Find chats for this user
+        $match: {
+          $or: [
+            { senderId: new mongoose.Types.ObjectId(userId) }, // Find messages where you're the sender
+            { receiverId: new mongoose.Types.ObjectId(userId) }, // Find messages where you're the receiver
+          ],
+        },
       },
       {
-        $sort: { timestamp: 1 }, // Sort messages by time
+        $sort: { createdAt: -1 }, // Sort messages by time
+      },
+      {
+        $lookup: {
+          from: "users", // Collection to join
+          localField: "senderId", // Field in 'messages'
+          foreignField: "_id", // Matching field in 'users'
+          as: "sender", // Output array name
+        },
+      },
+      {
+        $lookup: {
+          from: "users", // Collection to join
+          localField: "receiverId", // Field in 'messages'
+          foreignField: "_id", // Matching field in 'users'
+          as: "receiver", // Output array name
+        },
+      },
+      {
+        $unwind: "$sender", // Deconstruct the array
+      },
+      {
+        $unwind: "$receiver", // Deconstruct the array
       },
       {
         $group: {
           _id: "$chatRoomId", // Group messages by chatRoomId
           messages: {
-            $push: {
+            $first: {
               sender: "$sender",
+              receiver: "$receiver",
               content: "$content",
-              timestamp: "$timestamp",
+              timestamp: "$createdAt",
+              attachments: "$attachments",
+              prompts: "$prompts",
             },
           },
         },
@@ -223,14 +273,24 @@ export const getAllUserChat = async (req: Request, res: Response) => {
       .populate("senderId receiverId", "username email id image role") // Optionally populate user details
       .exec();
     const chats = groupMessagesByConversation(messages, req.user?.id);
+    const modifiedChatForBasicMessge = [
+      ...chats.map((chat: any) => {
+        return {
+          ...chat,
+          messages: chat.messages[chat.messages.length - 1],
+        };
+      }),
+    ];
     res.status(200).json({
       status: true,
-      chats: chats,
+      chats: modifiedChatForBasicMessge,
     });
   } catch (error: any) {
     res.status(500).send(error.message);
   }
 };
+
+
 
 export const startChatWithUser = async (req: Request, res: Response) => {
   const { userId } = req.body;
