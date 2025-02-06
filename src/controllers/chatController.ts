@@ -91,7 +91,7 @@ export const saveChatWithMedia: (
         const newChat = {
           content: convertedResponse.response,
           prompts: convertedResponse.prompts,
-          chatRoomId: null,
+          chatRoomId: chatRoomId,
           senderId: receiverId,
           receiverId: senderId,
           type,
