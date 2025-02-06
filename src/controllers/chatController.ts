@@ -77,6 +77,15 @@ export const saveChatWithMedia: (
       if (!user) {
         res.status(404).json({ error: `User not found by id ${receiverId}` });
       }
+      const chat = new Chat({
+        content,
+        chatRoomId,
+        senderId,
+        receiverId,
+        type,
+        attachments: url,
+      });
+      await chat.save();
       // Check if the user has the role 'Agent'
       if (user?.role === "Agent") {
         const aiResponse = await geminiAIMedia(
@@ -95,20 +104,10 @@ export const saveChatWithMedia: (
           senderId: receiverId,
           receiverId: senderId,
           type,
-          attachments: url,
+          // attachments: url,
         };
         const chat = new Chat(newChat);
 
-        await chat.save();
-      } else {
-        const chat = new Chat({
-          content,
-          chatRoomId,
-          senderId,
-          receiverId,
-          type,
-          attachments: url,
-        });
         await chat.save();
       }
       res

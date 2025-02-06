@@ -63,7 +63,8 @@ export const getFolder = async (req: Request, res: Response) => {
   try {
     const folder = await Folder.findById(req.params.id)
       .populate("child")
-      .populate("articles", "title");
+      .populate("articles", "title")
+      .populate("child.child");
     res.status(200).json({
       success: true,
       message: "Folder fetched successfully",
