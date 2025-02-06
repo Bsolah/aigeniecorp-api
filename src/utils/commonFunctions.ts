@@ -32,21 +32,21 @@ export const groupMessagesByConversation = (chats: any[], userId: any) => {
     if (!groupedMessages[conKey]) {
       groupedMessages[conKey] = {
         id:
-          chat.senderId?._id === userId
-            ? chat.senderId?._id
-            : chat.receiverId?._id,
+          chat.senderId._id.toString() === userId
+            ? chat.receiverId._id
+            : chat.senderId._id,
         email:
-          chat.senderId?._id === userId
-            ? chat.senderId?.email
-            : chat.receiverId?.email,
+          chat.senderId._id.toString() === userId
+            ? chat.receiverId.email
+            : chat.senderId.email,
         name:
-          chat.senderId?._id === userId
-            ? chat.senderId?.username
-            : chat.receiverId?.username,
+          chat.senderId._id.toString() === userId
+            ? chat.receiverId.username
+            : chat.senderId.username,
         role:
-          chat.senderId?._id === userId
-            ? chat.senderId?.role
-            : chat.receiverId?.role,
+          chat.senderId._id.toString() === userId
+            ? chat.receiverId.role
+            : chat.senderId.role,
         status: "online",
         // participants : [
         //     { email: chat.senderId.email, _id: chat.senderId._id },
@@ -62,6 +62,7 @@ export const groupMessagesByConversation = (chats: any[], userId: any) => {
       msg: chat?.content,
       type: chat.type,
       createdAt: chat.createdAt,
+      attachments: chat.attachments,
       prompts: null,
     };
 
@@ -76,6 +77,7 @@ export const groupMessagesByConversation = (chats: any[], userId: any) => {
   // Convert the grouped messages object into an array of conversations
   return Object.values(groupedMessages);
 };
+
 
 export const convertToStructuredObject = (inputString: string) => {
   console.log({ inputString });
