@@ -17,6 +17,7 @@
   "dependencies": {
     "@google-cloud/storage": "^7.15.0",
     "@google/generative-ai": "^0.21.0",
+    "@sendgrid/mail": "^8.1.4",
     "@vercel/node": "^5.0.4",
     "aws-sdk": "^2.1692.0",
     "bcrypt": "^5.1.1",

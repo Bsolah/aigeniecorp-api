@@ -91,7 +91,7 @@ export const saveChatWithMedia: (
         const newChat = {
           content: convertedResponse.response,
           prompts: convertedResponse.prompts,
-          chatRoomId: null,
+          chatRoomId: chatRoomId,
           senderId: receiverId,
           receiverId: senderId,
           type,
@@ -152,7 +152,7 @@ export const getChatByRoomId = async (req: Request, res: Response) => {
 };
 
 export const getAllChatByUserId = async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const userId = req.user?.id;
   try {
     const chatRooms = await Chat.aggregate([
       {
@@ -192,12 +192,41 @@ export const getAllChatByUserId = async (req: Request, res: Response) => {
       {
         $group: {
           _id: "$chatRoomId", // Group messages by chatRoomId
+          status: { $first: "online" },
+          name: {
+            $first: {
+              $cond: [
+                { $eq: ["$sender.email", req.user?.email] }, // Check against DB field and external variable
+                "$receiver.username",
+                "$sender.username",
+              ],
+            },
+          },
+          email: {
+            $first: {
+              $cond: [
+                { $eq: ["$sender.email", req.user?.email] }, // Check against DB field and external variable
+                "$receiver.email",
+                "$sender.email",
+              ],
+            },
+          },
+          role: {
+            $first: {
+              $cond: [
+                { $eq: ["$sender.email", req.user?.email] }, // Check against DB field and external variable
+                "$receiver.role",
+                "$sender.role",
+              ],
+            },
+          },
           messages: {
             $first: {
-              sender: "$sender",
-              receiver: "$receiver",
-              content: "$content",
-              timestamp: "$createdAt",
+              sender: "$sender.username",
+              receiver: "$receiver.username",
+              msg: "$content",
+              createdAt: "$createdAt",
+              type: "$type",
               attachments: "$attachments",
               prompts: "$prompts",
             },
@@ -206,8 +235,12 @@ export const getAllChatByUserId = async (req: Request, res: Response) => {
       },
       {
         $project: {
-          chatRoomId: "$_id", // Rename _id to chatRoomId
+          id: "$_id", // Rename _id to chatRoomId
           messages: 1,
+          status: 1,
+          name: 1,
+          email: 1,
+          role: 1,
           _id: 0,
         },
       },
