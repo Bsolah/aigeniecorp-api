@@ -47,7 +47,12 @@ export const editFolder = async (req: Request, res: Response) => {
 export const getRootFolders = async (req: Request, res: Response) => {
   try {
     const folders = await Folder.find({ parent: null })
-      .populate("child")
+      .populate({
+        path: "child",
+        populate: {
+          path: "child",
+        },
+      })
       .populate("articles", "title");
     res.status(200).json({
       success: true,
@@ -62,9 +67,13 @@ export const getRootFolders = async (req: Request, res: Response) => {
 export const getFolder = async (req: Request, res: Response) => {
   try {
     const folder = await Folder.findById(req.params.id)
-      .populate("child")
-      .populate("articles", "title")
-      .populate("child.child");
+      .populate({
+        path: "child",
+        populate: {
+          path: "child",
+        },
+      })
+      .populate("articles", "title");
     res.status(200).json({
       success: true,
       message: "Folder fetched successfully",
