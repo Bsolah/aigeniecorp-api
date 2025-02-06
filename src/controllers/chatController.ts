@@ -152,7 +152,7 @@ export const getChatByRoomId = async (req: Request, res: Response) => {
 };
 
 export const getAllChatByUserId = async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const userId = req.user?.id;
   try {
     const chatRooms = await Chat.aggregate([
       {
