@@ -504,9 +504,9 @@ export const getChatById = async (req: Request, res: Response) => {
 export const deleteChatByChatroonId = async (req: Request, res: Response) => {
   const { chatId } = req.params;
   try {
-    const chat = await Chat.findOneAndDelete({
+    const chat = await Chat.deleteMany({
       chatRoomId: chatId,
-      $or: [{ senderId: req.user?.id }, { receiverId: req.user?.id }],
+      // $or: [{ senderId: req.user?.id }, { receiverId: req.user?.id }],
     });
     if (!chat) {
       res.status(404).json({ message: "Chat not found" });
