@@ -7,6 +7,8 @@ import {
   logout,
   searchUserByName,
   createAgent,
+  getAllInvitations,
+  acceptInvitation,
 } from "../controllers/authController";
 import passport from "passport";
 import {
@@ -76,4 +78,6 @@ router.post("/reset-password/:token", resetPassword);
 router.post("/logout", logout);
 router.get("/search", authMiddleware, searchUserByName);
 router.post("/create-agent", authMiddleware, createAgent);
+router.get("/invitations", authMiddleware, getAllInvitations);
+router.post("/invitations/accept/:id", authMiddleware, acceptInvitation);
 export default router;

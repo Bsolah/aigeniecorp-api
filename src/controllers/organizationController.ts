@@ -1,4 +1,5 @@
 import Organization from "../models/Organization";
+import Invitation from "../models/Invitation";
 import { Request, Response, NextFunction } from "express";
 import User from "../models/User";
 import mongoose from "mongoose";
@@ -6,7 +7,7 @@ import mongoose from "mongoose";
 export const createOrganization = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { name } = req.body;
@@ -34,7 +35,7 @@ export const createOrganization = async (
 export const addUserToOrganization = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { email, role } = req.body;
@@ -66,22 +67,38 @@ export const addUserToOrganization = async (
         if (!user) {
           res.status(404).json({ message: "User not found" });
         } else {
-          if (
-            user.organizations.find(
-              (org) => org.organization.toString() === req.params.id
-            )
-          ) {
-            res.status(400).json({ message: "User already in organization" });
+          const invitation = await Invitation.findOne({
+            email,
+            organization: req.params.id,
+          });
+          if (invitation) {
+            res
+              .status(400)
+              .json({ message: "User already invited to organization" });
           } else {
-            user.organizations.push({
-              organization:
-                organization._id as unknown as mongoose.Types.ObjectId,
+            const newInvitation = new Invitation({
+              email,
+              organization: req.params.id,
               role,
             });
-
-            await user.save();
+            await newInvitation.save();
             res.status(200).json({ data: organization, success: true });
           }
+          // if (
+          //   user.organizations.find(
+          //     (org) => org.organization.toString() === req.params.id
+          //   )
+          // ) {
+          //   res.status(400).json({ message: "User already in organization" });
+          // } else {
+          //   user.organizations.push({
+          //     organization:
+          //       organization._id as unknown as mongoose.Types.ObjectId,
+          //     role,
+          //   });
+
+          //   await user.save();
+
           // organization.users.push(req.body.userId);
         }
       }
