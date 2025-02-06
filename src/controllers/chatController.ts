@@ -220,6 +220,15 @@ export const getAllChatByUserId = async (req: Request, res: Response) => {
               ],
             },
           },
+          receiverId: {
+            $first: {
+              $cond: [
+                { $eq: ["$sender.email", req.user?.email] }, // Check against DB field and external variable
+                "$receiver._id",
+                "$sender._id",
+              ],
+            },
+          },
           messages: {
             $first: {
               sender: "$sender.username",
@@ -244,6 +253,7 @@ export const getAllChatByUserId = async (req: Request, res: Response) => {
           email: 1,
           role: 1,
           _id: 0,
+          receiverId: 1
         },
       },
     ]);
