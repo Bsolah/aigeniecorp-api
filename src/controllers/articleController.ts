@@ -5,10 +5,10 @@ import Folder from "../models/Folder";
 
 export const createArticle = async (req: Request, res: Response) => {
   try {
-    const { title, content, tags, categories, parent, type } = req.body;
+    const { name, content, tags, categories, parent, type } = req.body;
     const parentFolder = await Folder.findById(parent);
     const article = await Article.create({
-      title,
+      name,
       content,
       createdBy: req.user?.id,
       tags,
@@ -31,7 +31,7 @@ export const createArticle = async (req: Request, res: Response) => {
 
 export const editArticle = async (req: Request, res: Response) => {
   try {
-    const { title, content, tags, categories, parent, child } = req.body;
+    const { name, content, tags, categories, parent, child } = req.body;
     const findAccessToArticle = await Article.findOne({
       _id: req.params.id,
       $or: [
@@ -61,7 +61,7 @@ export const editArticle = async (req: Request, res: Response) => {
     } else {
       const article = await Article.findByIdAndUpdate(
         req.params.id,
-        { title, content, tags, categories, parent, child },
+        { name, content, tags, categories, parent, child },
         { new: true },
       );
       res.status(200).json({
