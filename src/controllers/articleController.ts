@@ -143,9 +143,8 @@ export const getArticle = async (req: Request, res: Response) => {
     const article = await Article.findOne({
       _id: req.params.id,
       $or: [
+        { $and: [{ "teamAccess.user": req.user?.id }, { access: "public" }] },
         { createdBy: req.user?.id },
-        { "teamAccess.user": req.user?.id },
-        { access: "public" },
       ],
     })
       .populate("comments.user")
@@ -167,9 +166,8 @@ export const getArticleByTag = async (req: Request, res: Response) => {
     const articles = await Article.find({
       tags: { $in: tag.split(",") },
       $or: [
+        { $and: [{ "teamAccess.user": req.user?.id }, { access: "public" }] },
         { createdBy: req.user?.id },
-        { "teamAccess.user": req.user?.id },
-        { access: "public" },
       ],
     });
     res.status(200).json({ success: true, data: articles });
@@ -184,9 +182,8 @@ export const getArticleByCategory = async (req: Request, res: Response) => {
     const articles = await Article.find({
       categories: { $in: categories.split(",") },
       $or: [
+        { $and: [{ "teamAccess.user": req.user?.id }, { access: "public" }] },
         { createdBy: req.user?.id },
-        { "teamAccess.user": req.user?.id },
-        { access: "public" },
       ],
     });
     res.status(200).json({ success: true, data: articles });
@@ -201,9 +198,8 @@ export const searchArticleByTitle = async (req: Request, res: Response) => {
     const articles = await Article.find({
       title: { $regex: title, $options: "i" },
       $or: [
+        { $and: [{ "teamAccess.user": req.user?.id }, { access: "public" }] },
         { createdBy: req.user?.id },
-        { "teamAccess.user": req.user?.id },
-        { access: "public" },
       ],
     });
     res.status(200).json({ success: true, data: articles });
@@ -262,10 +258,15 @@ export const addUserToArticleTeam = async (req: Request, res: Response) => {
 };
 
 export const getAllArticles = async (req: Request, res: Response) => {
+  console.log(req.user?.id);
   try {
     const articles = await Article.find({
-      $or: [{ createdBy: req.user?.id }, { "teamAccess.user": req.user?.id }],
+      $or: [
+        { $and: [{ "teamAccess.user": req.user?.id }, { access: "public" }] },
+        { createdBy: req.user?.id },
+      ],
     });
+    //
     res.status(200).json({ success: true, data: articles });
   } catch (error: any) {
     res.status(500).send(error.message);
