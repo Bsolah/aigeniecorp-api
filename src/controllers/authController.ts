@@ -40,10 +40,12 @@ export const login = async (req: Request, res: Response) => {
 
       const isProduction = process.env.NODE_ENV === "production";
 
+      console.log('isProduction val ', isProduction)
+
       res.cookie("authToken", token, {
         httpOnly: true,
-        secure: isProduction, // Only secure in production
-        sameSite: isProduction ? "none" : "strict", // "None" for cross-origin, "Lax" for local testing
+        secure: true, //isProduction, // Only secure in production
+        sameSite: "none", // isProduction ? "none" : "strict", // "None" for cross-origin, "Lax" for local testing
         maxAge: 3600000, // 1 hour
       });
 
