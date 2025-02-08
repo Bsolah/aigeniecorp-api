@@ -44,8 +44,8 @@ export const login = async (req: Request, res: Response) => {
 
       res.cookie("authToken", token, {
         httpOnly: true,
-        secure: true, //isProduction, // Only secure in production
-        sameSite: "none", // isProduction ? "none" : "strict", // "None" for cross-origin, "Lax" for local testing
+        secure: isProduction, // Only secure in production
+        sameSite: isProduction ? "none" : "strict", // "None" for cross-origin, "Lax" for local testing
         maxAge: 3600000, // 1 hour
       });
 
