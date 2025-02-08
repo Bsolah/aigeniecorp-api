@@ -259,6 +259,7 @@ export const getAllChatByUserId = async (req: Request, res: Response) => {
 
     res.status(200).json({ chatRooms });
   } catch (error) {
+    console.log({error})
     res.status(500).json({ message: "Error getting chat from user " + userId });
   }
 };
@@ -278,34 +279,7 @@ export const deleteChatById = async (req: Request, res: Response) => {
 
 export const getAllUserChat = async (req: Request, res: Response) => {
   try {
-    // const chats = await Chat.find({
-    //   users: { $elemMatch: { user: req.params.userId } },
-    // });
-    // const chats = await Chat.find({
-    //   "users.user": req.user?.id,
-    // }).populate("users.user");
-
-    // const chatsResponse = processChats(chats);
-
-    // Extract user information from the users array
-    //  const user = chats.users.find(user => user.user && user.user.username && user.user.email);
-
-    // console.log()
-    // res.status(200).json({
-    //   status: true,
-    //   chats: chatsResponse
-
-    // chats: [
-    //   ...chats.map((chat) => ({
-    //     ...chat.toJSON(),
-    //     // ...chat.users.filter(async (user) => {
-    //     //   const userId = user.user?._id.toString() !== req.user?.id;
-    //     //   const userItems = await User.findById(userId);
-    //     //   return userItems;
-    //     // }),
-    //   })),
-    // ],
-
+  
     console.log("user ", req.user);
 
     const messages = await Chat.find({
