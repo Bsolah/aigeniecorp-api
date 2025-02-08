@@ -77,6 +77,15 @@ export const saveChatWithMedia: (
       if (!user) {
         res.status(404).json({ error: `User not found by id ${receiverId}` });
       }
+      const chat = new Chat({
+        content,
+        chatRoomId,
+        senderId,
+        receiverId,
+        type,
+        attachments: url,
+      });
+      await chat.save();
       // Check if the user has the role 'Agent'
       if (user?.role === "Agent") {
         const aiResponse = await geminiAIMedia(
@@ -91,24 +100,14 @@ export const saveChatWithMedia: (
         const newChat = {
           content: convertedResponse.response,
           prompts: convertedResponse.prompts,
-          chatRoomId: null,
+          chatRoomId: chatRoomId,
           senderId: receiverId,
           receiverId: senderId,
           type,
-          attachments: url,
+          // attachments: url,
         };
         const chat = new Chat(newChat);
 
-        await chat.save();
-      } else {
-        const chat = new Chat({
-          content,
-          chatRoomId,
-          senderId,
-          receiverId,
-          type,
-          attachments: url,
-        });
         await chat.save();
       }
       res
@@ -152,7 +151,7 @@ export const getChatByRoomId = async (req: Request, res: Response) => {
 };
 
 export const getAllChatByUserId = async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const userId = req.user?.id;
   try {
     const chatRooms = await Chat.aggregate([
       {
@@ -192,12 +191,52 @@ export const getAllChatByUserId = async (req: Request, res: Response) => {
       {
         $group: {
           _id: "$chatRoomId", // Group messages by chatRoomId
+          status: { $first: "online" },
+          name: {
+            $first: {
+              $cond: [
+                { $eq: ["$sender.email", req.user?.email] }, // Check against DB field and external variable
+                "$receiver.username",
+                "$sender.username",
+              ],
+            },
+          },
+          email: {
+            $first: {
+              $cond: [
+                { $eq: ["$sender.email", req.user?.email] }, // Check against DB field and external variable
+                "$receiver.email",
+                "$sender.email",
+              ],
+            },
+          },
+          role: {
+            $first: {
+              $cond: [
+                { $eq: ["$sender.email", req.user?.email] }, // Check against DB field and external variable
+                "$receiver.role",
+                "$sender.role",
+              ],
+            },
+          },
+          receiverId: {
+            $first: {
+              $cond: [
+                { $eq: ["$sender.email", req.user?.email] }, // Check against DB field and external variable
+                "$receiver._id",
+                "$sender._id",
+              ],
+            },
+          },
           messages: {
             $first: {
-              sender: "$sender",
-              receiver: "$receiver",
-              content: "$content",
-              timestamp: "$createdAt",
+              sender: "$sender.username",
+              senderId: "$sender._id",
+              receiver: "$receiver.username",
+              receiverId: "$receiver._id",
+              msg: "$content",
+              createdAt: "$createdAt",
+              type: "$type",
               attachments: "$attachments",
               prompts: "$prompts",
             },
@@ -206,15 +245,21 @@ export const getAllChatByUserId = async (req: Request, res: Response) => {
       },
       {
         $project: {
-          chatRoomId: "$_id", // Rename _id to chatRoomId
+          id: "$_id", // Rename _id to chatRoomId
           messages: 1,
+          status: 1,
+          name: 1,
+          email: 1,
+          role: 1,
           _id: 0,
+          receiverId: 1
         },
       },
     ]);
 
     res.status(200).json({ chatRooms });
   } catch (error) {
+    console.log({error})
     res.status(500).json({ message: "Error getting chat from user " + userId });
   }
 };
@@ -234,34 +279,7 @@ export const deleteChatById = async (req: Request, res: Response) => {
 
 export const getAllUserChat = async (req: Request, res: Response) => {
   try {
-    // const chats = await Chat.find({
-    //   users: { $elemMatch: { user: req.params.userId } },
-    // });
-    // const chats = await Chat.find({
-    //   "users.user": req.user?.id,
-    // }).populate("users.user");
-
-    // const chatsResponse = processChats(chats);
-
-    // Extract user information from the users array
-    //  const user = chats.users.find(user => user.user && user.user.username && user.user.email);
-
-    // console.log()
-    // res.status(200).json({
-    //   status: true,
-    //   chats: chatsResponse
-
-    // chats: [
-    //   ...chats.map((chat) => ({
-    //     ...chat.toJSON(),
-    //     // ...chat.users.filter(async (user) => {
-    //     //   const userId = user.user?._id.toString() !== req.user?.id;
-    //     //   const userItems = await User.findById(userId);
-    //     //   return userItems;
-    //     // }),
-    //   })),
-    // ],
-
+  
     console.log("user ", req.user);
 
     const messages = await Chat.find({
@@ -460,9 +478,9 @@ export const getChatById = async (req: Request, res: Response) => {
 export const deleteChatByChatroonId = async (req: Request, res: Response) => {
   const { chatId } = req.params;
   try {
-    const chat = await Chat.findOneAndDelete({
+    const chat = await Chat.deleteMany({
       chatRoomId: chatId,
-      $or: [{ senderId: req.user?.id }, { receiverId: req.user?.id }],
+      // $or: [{ senderId: req.user?.id }, { receiverId: req.user?.id }],
     });
     if (!chat) {
       res.status(404).json({ message: "Chat not found" });

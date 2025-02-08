@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 import User, { IUser } from "../models/User";
 import { generateResetPasswordToken } from "../utils/generateAccessToken";
 import generateSecurePassword from "../utils/generateAndHashSocialAuthPassword";
+import Invitation from "../models/Invitation";
+import mongoose from "mongoose";
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -124,6 +126,47 @@ export const createAgent = async (req: Request, res: Response) => {
     });
     await user.save();
     res.status(201).json({ success: true, user });
+  } catch (error: any) {
+    res.status(500).send(error.message);
+  }
+};
+
+export const getAllInvitations = async (req: Request, res: Response) => {
+  try {
+    const invitations = await Invitation.find({ email: req.user?.email });
+    res.status(200).json({ success: true, data: invitations });
+  } catch (error: any) {
+    res.status(500).send(error.message);
+  }
+};
+
+export const acceptInvitation = async (req: Request, res: Response) => {
+  try {
+    const invitation = await Invitation.findOne({
+      _id: req.params.id,
+      email: req.user?.email,
+      isAccepted: false,
+    });
+    if (invitation) {
+      const user = await User.findOne({ email: req.user?.email });
+      if (!user) {
+        res.status(404).json({ message: "User not found" });
+      } else {
+        user.organizations.push({
+          organization:
+            invitation.organization as unknown as mongoose.Types.ObjectId,
+          role: invitation.role as any,
+        });
+      }
+      invitation.isAccepted = true;
+      await invitation.save();
+      await user?.save();
+      res.status(200).json({ message: "Invitation accepted" });
+    } else {
+      res
+        .status(404)
+        .json({ message: "Invitation not found or has been accepted" });
+    }
   } catch (error: any) {
     res.status(500).send(error.message);
   }

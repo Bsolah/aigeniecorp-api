@@ -5,7 +5,7 @@ import mongoose, {
 } from "mongoose";
 
 export interface IArticle extends MongooseDocument {
-  title: string;
+  name: string;
   content: string;
   //   privacy: "private" | "shared";
   createdBy: mongoose.Types.ObjectId;
@@ -21,7 +21,7 @@ export interface IArticle extends MongooseDocument {
 export const articleSchema: Schema<IArticle> = new mongoose.Schema(
   {
     // privacy: { type: String, enum: ["private", "shared"], required: true },
-    title: { type: String },
+    name: { type: String },
     content: { type: String },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

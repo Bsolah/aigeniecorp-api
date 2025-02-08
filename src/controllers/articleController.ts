@@ -5,10 +5,10 @@ import Folder from "../models/Folder";
 
 export const createArticle = async (req: Request, res: Response) => {
   try {
-    const { title, content, tags, categories, parent, type } = req.body;
+    const { name, content, tags, categories, parent, type } = req.body;
     const parentFolder = await Folder.findById(parent);
     const article = await Article.create({
-      title,
+      name,
       content,
       createdBy: req.user?.id,
       tags,
@@ -31,7 +31,7 @@ export const createArticle = async (req: Request, res: Response) => {
 
 export const editArticle = async (req: Request, res: Response) => {
   try {
-    const { title, content, tags, categories, parent, child } = req.body;
+    const { name, content, tags, categories, parent, child } = req.body;
     const findAccessToArticle = await Article.findOne({
       _id: req.params.id,
       $or: [
@@ -61,7 +61,7 @@ export const editArticle = async (req: Request, res: Response) => {
     } else {
       const article = await Article.findByIdAndUpdate(
         req.params.id,
-        { title, content, tags, categories, parent, child },
+        { name, content, tags, categories, parent, child },
         { new: true },
       );
       res.status(200).json({
@@ -143,9 +143,8 @@ export const getArticle = async (req: Request, res: Response) => {
     const article = await Article.findOne({
       _id: req.params.id,
       $or: [
+        { $and: [{ "teamAccess.user": req.user?.id }, { access: "public" }] },
         { createdBy: req.user?.id },
-        { "teamAccess.user": req.user?.id },
-        { access: "public" },
       ],
     })
       .populate("comments.user")
@@ -167,9 +166,8 @@ export const getArticleByTag = async (req: Request, res: Response) => {
     const articles = await Article.find({
       tags: { $in: tag.split(",") },
       $or: [
+        { $and: [{ "teamAccess.user": req.user?.id }, { access: "public" }] },
         { createdBy: req.user?.id },
-        { "teamAccess.user": req.user?.id },
-        { access: "public" },
       ],
     });
     res.status(200).json({ success: true, data: articles });
@@ -184,9 +182,8 @@ export const getArticleByCategory = async (req: Request, res: Response) => {
     const articles = await Article.find({
       categories: { $in: categories.split(",") },
       $or: [
+        { $and: [{ "teamAccess.user": req.user?.id }, { access: "public" }] },
         { createdBy: req.user?.id },
-        { "teamAccess.user": req.user?.id },
-        { access: "public" },
       ],
     });
     res.status(200).json({ success: true, data: articles });
@@ -201,9 +198,8 @@ export const searchArticleByTitle = async (req: Request, res: Response) => {
     const articles = await Article.find({
       title: { $regex: title, $options: "i" },
       $or: [
+        { $and: [{ "teamAccess.user": req.user?.id }, { access: "public" }] },
         { createdBy: req.user?.id },
-        { "teamAccess.user": req.user?.id },
-        { access: "public" },
       ],
     });
     res.status(200).json({ success: true, data: articles });
@@ -262,10 +258,15 @@ export const addUserToArticleTeam = async (req: Request, res: Response) => {
 };
 
 export const getAllArticles = async (req: Request, res: Response) => {
+  console.log(req.user?.id);
   try {
     const articles = await Article.find({
-      $or: [{ createdBy: req.user?.id }, { "teamAccess.user": req.user?.id }],
+      $or: [
+        { $and: [{ "teamAccess.user": req.user?.id }, { access: "public" }] },
+        { createdBy: req.user?.id },
+      ],
     });
+    //
     res.status(200).json({ success: true, data: articles });
   } catch (error: any) {
     res.status(500).send(error.message);

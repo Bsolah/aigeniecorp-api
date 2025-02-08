@@ -28,8 +28,8 @@ router.post(
   upload.single("media"),
   saveChatWithMedia,
 );
+router.get("/get/rooms", authMiddleware, getAllChatByUserId);
 router.get("/get/:chatRoomId", authMiddleware, getChatByRoomId);
-router.get("/get/:userId/rooms", authMiddleware, getAllChatByUserId);
 router.delete("/remove/:chatRoomId", authMiddleware, deleteChatById);
 router.get("/all", authMiddleware, getAllUserChat);
 router.post("/start/user", authMiddleware, startChatWithUser);

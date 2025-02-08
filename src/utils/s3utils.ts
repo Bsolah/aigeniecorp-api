@@ -14,7 +14,7 @@ export const uploadFile = async (file: any) => {
   try {
     console.log("file", file);
     //   const blob = bucket.file(file.originalname);
-    const fileName = file.originalname || `file-${Date.now()}`;
+    const fileName = file?.originalname || `file-${Date.now()}`;
     const blob = bucket.file(fileName);
     const blobStream = blob.createWriteStream({
       resumable: false,
@@ -24,7 +24,7 @@ export const uploadFile = async (file: any) => {
     return new Promise<string>((resolve, reject) => {
       blobStream
         .on("finish", () => {
-          const publicUrl = `https://storage.googleapis.com/${bucketName}/${file.filename ?? fileName}`;
+          const publicUrl = `https://storage.googleapis.com/${bucketName}/${fileName}`;
           resolve(publicUrl);
         })
         .on("error", (err) => {
