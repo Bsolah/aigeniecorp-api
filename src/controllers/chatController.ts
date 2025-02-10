@@ -1,16 +1,12 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import mongoose from "mongoose";
 import Chat from "../models/Chat";
 import User from "../models/User";
 import {
-  processChats,
-  groupMessagesByConversation,
   convertToStructuredObject,
 } from "../utils/commonFunctions";
-import { chatWithAI } from "./aiController";
-import { deepSeekChat, geminiAI, geminiAIMedia, openAiChat } from "../utils/aiModels";
+import { geminiAI, geminiAIMedia } from "../utils/aiModels";
 import { uploadFile } from "../utils/s3utils";
-import multer from "multer";
 
 export const postChat = async (req: Request, res: Response) => {
   const { content, receiverId, chatRoomId, type, internalAI, externalAI } = req.body;
@@ -24,7 +20,6 @@ export const postChat = async (req: Request, res: Response) => {
   }
 
   try {
-
     const chat = new Chat({ content, chatRoomId, senderId, receiverId, type });
     await chat.save();
 
@@ -36,8 +31,6 @@ export const postChat = async (req: Request, res: Response) => {
     // Check if the recipient user is a Bot
     if (user?.role === "Agent") {
 
-      console.log("in agent ")
-
       let aiResponse;
       if (file && file?.mimetype) {
         aiResponse = await geminiAIMedia(
@@ -48,52 +41,6 @@ export const postChat = async (req: Request, res: Response) => {
       } else {
         aiResponse = await geminiAI(content);
       }
-
-      console.log("in agent internal ", internalAI)
-      console.log("in agent internal ", externalAI)
-
-      // && content.includes("capital of USA?")
-   
-      console.log('internalAI ', internalAI, ' then comp ')
-      console.log('externalAI ', externalAI, ' then comp ')
-  
-      if ((internalAI == "knb") && (externalAI == "dai")) {
-        //   convertedResponse = {
-        //     response : "There appear to be a discrepancy between your internal and external and suggests to correct the information based on Wikipedia",
-        //     prompts: []
-        // }
-        console.log("both LLM")
-      } else
-      if ((internalAI === "knb")) {
-        //   convertedResponse = {
-        //     response : "The capital of USA is Califonia",
-        //     prompts: []
-        //   }
-        console.log("internal LLM")
-      } else 
-      {
-        console.log("circle back")
-      }
-  
-      // if (internalAI && externalAI && content.includes("capital of USA?")) {
-      //   //   convertedResponse = {
-      //   //     response : "There appear to be a discrepancy between your internal and external and suggests to correct the information based on Wikipedia",
-      //   //     prompts: []
-      //   // }
-      //   console.log("both LLM")
-      // }
-      // if (internalAI && content.includes("capital of USA?")) {
-      //   //   convertedResponse = {
-      //   //     response : "The capital of USA is Califonia",
-      //   //     prompts: []
-      //   //   }
-      //   console.log("internal LLM")
-      // }
-      // else {
-      //   convertedResponse = convertToStructuredObject(
-      //       aiResponse.response.text(),
-      //     );
-      // }
 
       const convertedResponse = convertToStructuredObject(
         aiResponse.response.text(), internalAI, externalAI, content
@@ -120,8 +67,6 @@ export const postChat = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error saving chat chatRoomId " + err });
   }
 };
-
-// export const saveChatWithMedia: (
 //   req: Request,
 //   res: Response,
 //   next: NextFunction,
@@ -192,7 +137,6 @@ export const getChatByRoomId = async (req: Request, res: Response) => {
   const skip = page ? parseInt(page.toString()) * 50 : 0;
 
   // Sort by timestamp in ascending order
-
   try {
     if (page) {
       const chats = await Chat.find({ chatRoomId })
