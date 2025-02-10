@@ -22,19 +22,9 @@ const upload = multer({
 });
 
 router.post("/save/:senderId", authMiddleware,  upload.single("media"), postChat);
-// router.post(
-//   "/save/media/:senderId",
-//   authMiddleware,
-//   upload.single("media"),
-//   saveChatWithMedia,
-// );
 router.get("/get/rooms", authMiddleware, getAllChatByUserId);
 router.get("/get/:chatRoomId", authMiddleware, getChatByRoomId);
 router.delete("/remove/:chatRoomId", authMiddleware, deleteChatById);
-// router.get("/all", authMiddleware, getAllUserChat);
-// router.post("/start/user", authMiddleware, startChatWithUser);
-// router.post("/start/bot", authMiddleware, startChatWithBot);
-// router.post("/message", authMiddleware, addMessageToChat);
 router.get("/details/:id", authMiddleware, getChatById);
 router.delete("/delete/:chatId", authMiddleware, deleteChatByChatroonId);
 

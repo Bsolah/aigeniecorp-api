@@ -99,11 +99,11 @@ export const convertToStructuredObject = (inputString: string, internalAI: strin
 
 
     // SENTITIVE HARD CODING
-  if ((internalAI == "knb") && (externalAI == "dai") && content.toLocaleLowerCase().includes("30-day notice")) {
+  if ((internalAI == "knb") && (externalAI == "dai") && content.toLocaleLowerCase().includes("capital of us")) {
     response = "There appear to be a discrepancy between your internal and external and suggests to correct the information based on Wikipedia",
       console.log("both LLM")
   } else
-    if ((internalAI === "knb") && content.toLocaleLowerCase().includes("capital of usa")) {
+    if ((internalAI === "knb") && content.toLocaleLowerCase().includes("capital of us")) {
       response = "The capital of USA is Califonia",
         console.log("internal LLM")
     } else {
