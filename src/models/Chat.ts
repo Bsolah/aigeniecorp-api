@@ -24,7 +24,7 @@ const chatSchema: Schema<IChat> = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    content: { type: String, required: true },
+    content: { type: String },
     prompts: [{ type: String }],
     type: { type: String, required: true },
     attachments: { type: String },

@@ -49,8 +49,6 @@ app.use(
   }),
 );
 
-console.log("node ", process.env.FRONT_END);
-
 const corsOptions = {
   origin: process.env.FRONT_END, // Your React apps URL
   credentials: true, // Allow cookies to be sent with requests
@@ -90,9 +88,6 @@ app.get("*", (req, res) => {
 });
 
 app.use(errorHandler);
-
-console.log("App environment:", process.env.NODE_ENV); // Should be 'production'
-console.log("App environment:", process.env.PORT);
 
 // Start Server
 const PORT = process.env.PORT || 5000;

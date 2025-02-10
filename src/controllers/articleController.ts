@@ -258,7 +258,6 @@ export const addUserToArticleTeam = async (req: Request, res: Response) => {
 };
 
 export const getAllArticles = async (req: Request, res: Response) => {
-  console.log(req.user?.id);
   try {
     const articles = await Article.find({
       $or: [

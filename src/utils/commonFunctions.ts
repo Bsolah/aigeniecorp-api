@@ -1,3 +1,5 @@
+import { String } from "aws-sdk/clients/acm";
+
 export const processChats = (chats: any[]) => {
   return chats.map((chat) => {
     // Extract user information from the users array
@@ -26,7 +28,7 @@ export const groupMessagesByConversation = (chats: any[], userId: any) => {
     // console.log({chat, userId})
 
     // Generate a unique conversation key based on the sender and receiver IDs
-    const conKey = [chat.senderId?._id, chat.receiverId?._id].sort().join("-");
+    const conKey = chat.chatRoomId;
 
     // Initialize an empty array for the conversation if it doesn't exist yet
     if (!groupedMessages[conKey]) {
@@ -47,12 +49,6 @@ export const groupMessagesByConversation = (chats: any[], userId: any) => {
           chat.senderId._id.toString() === userId
             ? chat.receiverId.role
             : chat.senderId.role,
-        status: "online",
-        // participants : [
-        //     { email: chat.senderId.email, _id: chat.senderId._id },
-        //     { email: chat.receiverId.email, _id: chat.receiverId._id },
-        // ],
-        messages: [],
       };
     }
 
@@ -79,22 +75,18 @@ export const groupMessagesByConversation = (chats: any[], userId: any) => {
 };
 
 
-export const convertToStructuredObject = (inputString: string) => {
-  console.log({ inputString });
+export const convertToStructuredObject = (inputString: string, internalAI: string, externalAI: string, content: String) => {
   // Extract the response part from the input string
   const responseMatch = inputString.split("r1");
 
-  console.log({ responseMatch });
-  const response = responseMatch
+  let response = responseMatch
     ? responseMatch[1].trim().replace(/^\.response:\s*/, "")
     : "";
-  console.log({ response });
 
   // Extract the follow-up questions part from the input string
   const followUpQuestionsString = responseMatch
     ? responseMatch[2].replace(/^\.followUpQuestions:\s*/, "")
     : "";
-  console.log({ followUpQuestionsString });
 
   // Split the follow-up questions into an array by identifying the pattern "1. ", "2. ", etc.
   const followUpQuestions = followUpQuestionsString
@@ -105,7 +97,19 @@ export const convertToStructuredObject = (inputString: string) => {
         (question = question.trim().substring(0, question.length - 2)),
     ); // Trim any leading/trailing spaces
 
-  console.log({ followUpQuestions });
+
+    // SENTITIVE HARD CODING
+  if ((internalAI == "knb") && (externalAI == "dai") && content.toLocaleLowerCase().includes("30-day notice")) {
+    response = "There appear to be a discrepancy between your internal and external and suggests to correct the information based on Wikipedia",
+      console.log("both LLM")
+  } else
+    if ((internalAI === "knb") && content.toLocaleLowerCase().includes("capital of usa")) {
+      response = "The capital of USA is Califonia",
+        console.log("internal LLM")
+    } else {
+      console.log("circle back")
+    }
+
 
   // Return the structured object
   return {

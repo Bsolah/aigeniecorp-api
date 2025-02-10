@@ -1,16 +1,16 @@
 import { Router } from "express";
 import {
-  saveChat,
+  postChat,
   getChatByRoomId,
   getAllChatByUserId,
   deleteChatById,
-  getAllUserChat,
-  startChatWithUser,
-  startChatWithBot,
-  addMessageToChat,
+  // getAllUserChat,
+  // startChatWithUser,
+  // startChatWithBot,
+  // addMessageToChat,
   getChatById,
   deleteChatByChatroonId,
-  saveChatWithMedia,
+  // saveChatWithMedia,
 } from "../controllers/chatController";
 import authMiddleware from "../middlewares/authMiddleware";
 import multer from "multer";
@@ -21,20 +21,20 @@ const upload = multer({
   limits: { fileSize: 1 * 1024 * 1024 },
 });
 
-router.post("/save/:senderId", authMiddleware, saveChat);
-router.post(
-  "/save/media/:senderId",
-  authMiddleware,
-  upload.single("media"),
-  saveChatWithMedia,
-);
+router.post("/save/:senderId", authMiddleware,  upload.single("media"), postChat);
+// router.post(
+//   "/save/media/:senderId",
+//   authMiddleware,
+//   upload.single("media"),
+//   saveChatWithMedia,
+// );
 router.get("/get/rooms", authMiddleware, getAllChatByUserId);
 router.get("/get/:chatRoomId", authMiddleware, getChatByRoomId);
 router.delete("/remove/:chatRoomId", authMiddleware, deleteChatById);
-router.get("/all", authMiddleware, getAllUserChat);
-router.post("/start/user", authMiddleware, startChatWithUser);
-router.post("/start/bot", authMiddleware, startChatWithBot);
-router.post("/message", authMiddleware, addMessageToChat);
+// router.get("/all", authMiddleware, getAllUserChat);
+// router.post("/start/user", authMiddleware, startChatWithUser);
+// router.post("/start/bot", authMiddleware, startChatWithBot);
+// router.post("/message", authMiddleware, addMessageToChat);
 router.get("/details/:id", authMiddleware, getChatById);
 router.delete("/delete/:chatId", authMiddleware, deleteChatByChatroonId);
 
