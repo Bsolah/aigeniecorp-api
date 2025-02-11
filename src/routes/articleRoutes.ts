@@ -17,15 +17,15 @@ import authMiddleware from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
-router.post("/create", authMiddleware, createArticle);
-router.put("/edit/:id", authMiddleware, editArticle);
-router.delete("/delete/:id", authMiddleware, deleteArticle);
-router.get("/tag", authMiddleware, getArticleByTag);
-router.get("/category", authMiddleware, getArticleByCategory);
-router.get("/search/title", authMiddleware, searchArticleByTitle);
-router.get("/all", authMiddleware, getAllArticles);
-router.post("/comment/:id", authMiddleware, addCommentToArticle);
-router.post("/add/user/:id", authMiddleware, addUserToArticleTeam);
-router.get("/:id", authMiddleware, getArticle);
-router.post("/publish/:id", authMiddleware, publishArticle);
+router.post("/create", createArticle);
+router.put("/edit/:id", editArticle);
+router.delete("/delete/:id", deleteArticle);
+router.get("/tag", getArticleByTag);
+router.get("/category", getArticleByCategory);
+router.get("/search/title", searchArticleByTitle);
+router.get("/all", getAllArticles);
+router.post("/comment/:id", addCommentToArticle);
+router.post("/add/user/:id", addUserToArticleTeam);
+router.get("/:id", getArticle);
+router.post("/publish/:id", publishArticle);
 export default router;
