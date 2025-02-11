@@ -98,18 +98,34 @@ export const convertToStructuredObject = (inputString: string, internalAI: strin
     ); // Trim any leading/trailing spaces
 
 
-    // SENTITIVE HARD CODING
+  // SENTITIVE HARD CODING 1
   if ((internalAI == "knb") && (externalAI == "dai") && content.toLocaleLowerCase().includes("capital of us")) {
     response = "There appear to be a discrepancy between your internal and external and suggests to correct the information based on Wikipedia",
       console.log("both LLM")
-  } else
-    if ((internalAI === "knb") && content.toLocaleLowerCase().includes("capital of us")) {
-      response = "The capital of USA is Califonia",
-        console.log("internal LLM")
-    } else {
-      console.log("circle back")
-    }
+  } else if ((internalAI === "knb") && content.toLocaleLowerCase().includes("capital of us")) {
+    response = "The capital of USA is Califonia",
+      console.log("internal LLM")
+  } else {
+    console.log("circle back")
+  }
 
+  // SENTITIVE HARD CODING 2
+  if ((externalAI == "dai") || (externalAI == "oai") || (externalAI == "gai") &&
+    content.toLocaleLowerCase().includes("Acme Corp")
+    || content.toLocaleLowerCase().includes("Q3 revenue: $2.5M")
+    || content.toLocaleLowerCase().includes("CEO, Jane Doe")
+    || content.toLocaleLowerCase().includes("discount code YC2025")) {
+    response = `Private Data Detected:
+        CEO’s Name (Jane Doe): Personal data under GDPR (identifies an individual).
+        Revenue ($2.5M): Confidential business data (not personal data, but sensitive for competition).
+        Discount Code (YC2025): Proprietary business data (could expose internal pricing strategies).
+
+        :warning:WARNING:warning: In line with our security policy and GDPR compliance, we have detected confidential information. An IT alert has been triggered.
+        Please submit this request through our internal AI model, in line with our security policy.`;
+    console.log("one external LLM")
+  } else {
+      console.log("circle back")
+  }
 
   // Return the structured object
   return {
