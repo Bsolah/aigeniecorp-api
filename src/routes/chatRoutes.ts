@@ -21,11 +21,11 @@ const upload = multer({
   limits: { fileSize: 1 * 1024 * 1024 },
 });
 
-router.post("/save/:senderId",  upload.single("media"), postChat);
-router.get("/get/rooms", getAllChatByUserId);
-router.get("/get/:chatRoomId", getChatByRoomId);
-router.delete("/remove/:chatRoomId", deleteChatById);
-router.get("/details/:id", getChatById);
-router.delete("/delete/:chatId", deleteChatByChatroonId);
+router.post("/save/:senderId", authMiddleware,  upload.single("media"), postChat);
+router.get("/get/rooms", authMiddleware, getAllChatByUserId);
+router.get("/get/:chatRoomId", authMiddleware, getChatByRoomId);
+router.delete("/remove/:chatRoomId", authMiddleware, deleteChatById);
+router.get("/details/:id", authMiddleware, getChatById);
+router.delete("/delete/:chatId", authMiddleware, deleteChatByChatroonId);
 
 export default router;

@@ -10,8 +10,8 @@ import authMiddleware from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
-router.post("/create", createFolder);
-router.put("/edit/:id", editFolder);
-router.get("/all", getRootFolders);
-router.get("/:id", getFolder);
+router.post("/create", authMiddleware, createFolder);
+router.put("/edit/:id", authMiddleware, editFolder);
+router.get("/all", authMiddleware, getRootFolders);
+router.get("/:id", authMiddleware, getFolder);
 export default router;
