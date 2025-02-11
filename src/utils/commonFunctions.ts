@@ -119,7 +119,7 @@ export const convertToStructuredObject = (inputString: string, internalAI: strin
         :warning:WARNING:warning: In line with our security policy and GDPR compliance, we have detected confidential information. An IT alert has been triggered.
         Please submit this request through our internal AI model, in line with our security policy.`;
     console.log("one external LLM")
-  } else if ((internalAI == "knb") && && content.toLocaleLowerCase().includes("follow-up email")) {
+  } else if ((internalAI == "knb") && content.toLocaleLowerCase().includes("follow-up email")) {
     response = `  Subject: Follow-Up & Exclusive Offer for Acme Corp 
                   Hi Acme Corp,
                   I hope you’re well. I wanted to follow up on our recent discussion and congratulate your team on achieving an impressive Q3 revenue of $2.5M. Please extend my congratulations to Jane Doe and the entire Acme Corp team for this milestone.
