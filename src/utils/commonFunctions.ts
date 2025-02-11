@@ -110,11 +110,7 @@ export const convertToStructuredObject = (inputString: string, internalAI: strin
   }
 
   // SENTITIVE HARD CODING 2
-  if ((externalAI == "dai") || (externalAI == "oai") || (externalAI == "gai") &&
-    content.toLocaleLowerCase().includes("Acme Corp")
-    || content.toLocaleLowerCase().includes("Q3 revenue: $2.5M")
-    || content.toLocaleLowerCase().includes("CEO, Jane Doe")
-    || content.toLocaleLowerCase().includes("discount code YC2025")) {
+  if ((externalAI == "dai") && content.toLocaleLowerCase().includes("follow-up email")) {
     response = `Private Data Detected:
         CEO’s Name (Jane Doe): Personal data under GDPR (identifies an individual).
         Revenue ($2.5M): Confidential business data (not personal data, but sensitive for competition).
