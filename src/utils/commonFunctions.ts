@@ -100,7 +100,7 @@ export const convertToStructuredObject = (inputString: string, internalAI: strin
 
   // SENTITIVE HARD CODING 1
   if ((internalAI == "knb") && (externalAI == "dai") && content.toLocaleLowerCase().includes("capital of us")) {
-    response = "There appear to be a discrepancy between your internal and external and suggests to correct the information based on Wikipedia",
+    response = "There appear to be a discrepancy between your internal and external and suggests to correct the information",
       console.log("both LLM")
   } else if ((internalAI === "knb") && content.toLocaleLowerCase().includes("capital of us")) {
     response = "The capital of USA is Califonia",
@@ -119,8 +119,16 @@ export const convertToStructuredObject = (inputString: string, internalAI: strin
         :warning:WARNING:warning: In line with our security policy and GDPR compliance, we have detected confidential information. An IT alert has been triggered.
         Please submit this request through our internal AI model, in line with our security policy.`;
     console.log("one external LLM")
-  } else {
-      console.log("circle back")
+  } else if (internalAI == "knb") {
+    response = `  Subject: Follow-Up & Exclusive Offer for Acme Corp 
+                  Hi Acme Corp,
+                  I hope you’re well. I wanted to follow up on our recent discussion and congratulate your team on achieving an impressive Q3 revenue of $2.5M. Please extend my congratulations to Jane Doe and the entire Acme Corp team for this milestone.
+                  To support your continued success, we’re excited to offer you an exclusive 10% discount under our YC2025 promotion. Let’s connect soon to discuss how we can best serve your upcoming needs.
+                  Looking forward to your thoughts.
+                  Best regards,
+                  Kawtar Lahlou
+                  Company Test, CEO & Co-founder`
+    console.log("circle back")
   }
 
   // Return the structured object
