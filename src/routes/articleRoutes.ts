@@ -10,7 +10,7 @@ import {
   searchArticleByTitle,
   addCommentToArticle,
   addUserToArticleTeam,
-  getAllArticles,
+  getUserDraftArticles,
   publishArticle,
 } from "../controllers/articleController";
 import authMiddleware from "../middlewares/authMiddleware";
@@ -23,7 +23,7 @@ router.delete("/delete/:id", authMiddleware, deleteArticle);
 router.get("/tag", authMiddleware, getArticleByTag);
 router.get("/category", authMiddleware, getArticleByCategory);
 router.get("/search/title", authMiddleware, searchArticleByTitle);
-router.get("/all", authMiddleware, getAllArticles);
+router.get("/drafts", authMiddleware, getUserDraftArticles);
 router.post("/comment/:id", authMiddleware, addCommentToArticle);
 router.post("/add/user/:id", authMiddleware, addUserToArticleTeam);
 router.get("/:id", authMiddleware, getArticle);

@@ -28,26 +28,6 @@ const chatSchema: Schema<IChat> = new mongoose.Schema(
     prompts: [{ type: String }],
     type: { type: String, required: true },
     attachments: { type: String },
-    // userId: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "User",
-    //   //   required: true,
-    // },
-    // users: [
-    //   {
-    //     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    //     bot: { type: String },
-    //   },
-    // ],
-    // messages: [
-    //   {
-    //     sender: { type: String, required: true },
-    //     content: { type: String, required: true },
-    //     type: { type: String, required: true },
-    //     read: { type: String, required: false },
-    //     timestamp: { type: Date, default: Date.now },
-    //   },
-    // ],
   },
   { timestamps: true },
 );

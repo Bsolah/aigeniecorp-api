@@ -5,14 +5,17 @@ import Folder from "../models/Folder";
 
 export const createArticle = async (req: Request, res: Response) => {
   try {
-    const { name, content, tags, categories, parent, type } = req.body;
+    const { name, content, tags, categories, parent, type, access } = req.body;
+    const today = new Date();
+    let articleName = name ? name : today.toISOString();
     const parentFolder = await Folder.findById(parent);
     const article = await Article.create({
-      name,
+      name: articleName,
       content,
       createdBy: req.user?.id,
       tags,
       categories,
+      access: access ? access : 'private',
       parent,
       type,
     });
@@ -257,14 +260,14 @@ export const addUserToArticleTeam = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllArticles = async (req: Request, res: Response) => {
+export const getUserDraftArticles = async (req: Request, res: Response) => {
   try {
     const articles = await Article.find({
       $or: [
-        { $and: [{ "teamAccess.user": req.user?.id }, { access: "public" }] },
+        { $and: [{ "teamAccess.user": req.user?.id }, { access: "private" }] },
         { createdBy: req.user?.id },
       ],
-    });
+    })
     //
     res.status(200).json({ success: true, data: articles });
   } catch (error: any) {

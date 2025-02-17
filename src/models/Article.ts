@@ -7,26 +7,22 @@ import mongoose, {
 export interface IArticle extends MongooseDocument {
   name: string;
   content: string;
-  //   privacy: "private" | "shared";
   createdBy: mongoose.Types.ObjectId;
   teamAccess: { user: mongoose.Types.ObjectId; role: string }[];
   tags: string[];
   categories: string[];
   comments: { user: mongoose.Types.ObjectId; comment: string }[];
   parent: mongoose.Types.ObjectId;
-  // child: mongoose.Types.ObjectId[];
   access: "private" | "public";
 }
 
 export const articleSchema: Schema<IArticle> = new mongoose.Schema(
   {
-    // privacy: { type: String, enum: ["private", "shared"], required: true },
     name: { type: String },
     content: { type: String },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
+      ref: "User"
     },
     teamAccess: [
       {
@@ -42,12 +38,10 @@ export const articleSchema: Schema<IArticle> = new mongoose.Schema(
     ],
     tags: [{ type: String }],
     categories: [{ type: String }],
-    parent: { type: mongoose.Schema.Types.ObjectId, ref: "Folder" },
-    // child: [{ type: mongoose.Schema.Types.ObjectId, ref: "Article" }],
+    parent: { type: mongoose.Schema.Types.ObjectId, ref: "Folder", required: true },
     access: {
       type: String,
       enum: ["private", "public"],
-      required: true,
       default: "private",
     },
   },

@@ -5,12 +5,13 @@ import User from "../models/User";
 import {
   convertToStructuredObject,
 } from "../utils/commonFunctions";
-import { geminiAI, geminiAIMedia } from "../utils/aiModels";
+import { geminiAI, geminiAIMedia, openAiChat, deepSeekChat } from "../utils/aiModels";
 import { uploadFile } from "../utils/s3utils";
 
 export const postChat = async (req: Request, res: Response) => {
   const { content, receiverId, chatRoomId, type, internalAI, externalAI } = req.body;
   const { senderId } = req.params;
+  const switchAI  = JSON.parse(externalAI);
 
 
   let attachmentUrl;
@@ -31,7 +32,7 @@ export const postChat = async (req: Request, res: Response) => {
     // Check if the recipient user is a Bot
     if (user?.role === "Agent") {
 
-      let aiResponse;
+      let aiResponse = content;
       if (file && file?.mimetype) {
         aiResponse = await geminiAIMedia(
           file.buffer,
@@ -39,7 +40,21 @@ export const postChat = async (req: Request, res: Response) => {
           file.mimetype,
         );
       } else {
-        aiResponse = await geminiAI(content);
+
+        console.log('ai ', switchAI);
+        console.log('ai ', switchAI['dai']);
+        console.log('ai 2 ', switchAI.gai);
+        console.log('ai 3 ', switchAI.oai);
+
+        if(switchAI['gai']) {
+          aiResponse = await geminiAI(content);
+        } 
+        if (switchAI['oai']) {
+          aiResponse = geminiAI(content) // openAiChat(content);
+        }
+        if (switchAI['dai']) {
+          aiResponse = geminiAI(content) // deepSeekChat(content);
+        }
       }
 
       const convertedResponse = convertToStructuredObject(
@@ -67,68 +82,6 @@ export const postChat = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error saving chat chatRoomId " + err });
   }
 };
-//   req: Request,
-//   res: Response,
-//   next: NextFunction,
-// ) => void = async (req: Request, res: Response, next: NextFunction) => {
-//   try {
-//     const { content, receiverId, chatRoomId, type } = req.body;
-//     const { senderId } = req.params;
-//     const file = req.file;
-//     const url = await uploadFile(file);
-//     if (
-//       file?.mimetype.startsWith("image") ||
-//       file?.mimetype.startsWith("audio") ||
-//       file?.mimetype.startsWith("application")
-//     ) {
-//       console.log("File is an image / or audio / or application");
-//       const user = await User.findById(receiverId);
-//       if (!user) {
-//         res.status(404).json({ error: `User not found by id ${receiverId}` });
-//       }
-//       const chat = new Chat({
-//         content,
-//         chatRoomId,
-//         senderId,
-//         receiverId,
-//         type,
-//         attachments: url,
-//       });
-//       await chat.save();
-//       // Check if the user has the role 'Agent'
-//       if (user?.role === "Agent") {
-//         const aiResponse = await geminiAIMedia(
-//           file.buffer,
-//           content,
-//           file.mimetype,
-//         );
-//         const convertedResponse = convertToStructuredObject(
-//           aiResponse.response.text(),
-//         );
-//         console.log("convertedResponse ", convertedResponse);
-//         const newChat = {
-//           content: convertedResponse.response,
-//           prompts: convertedResponse.prompts,
-//           chatRoomId: chatRoomId,
-//           senderId: receiverId,
-//           receiverId: senderId,
-//           type,
-//           // attachments: url,
-//         };
-//         const chat = new Chat(newChat);
-
-//         await chat.save();
-//       }
-//       res
-//         .status(201)
-//         .send(`Chat with chatRoomId ${chatRoomId} save successfully.`);
-//     } else {
-//       return res.status(400).json({ message: "File type not supported" });
-//     }
-//   } catch (err) {
-//     res.status(500).json({ message: "Error saving chat chatRoomId " + err });
-//   }
-// };
 
 export const getChatByRoomId = async (req: Request, res: Response) => {
   const { chatRoomId } = req.params;
