@@ -30,7 +30,7 @@ export const postChat = async (req: Request, res: Response) => {
     }
 
     // Check if the recipient user is a Bot
-    if (user?.role === "Agent") {
+    if (user?.type === "Agent") {
 
       let aiResponse = content;
       if (file && file?.mimetype) {
@@ -171,7 +171,7 @@ export const getAllChatByUserId = async (req: Request, res: Response) => {
           lastMessageDate: { $first: "$createdAt" },
           status: { $first: "online" }, // You can change this logic for actual status
           name: { $first: "$otherUser.username" },
-          role: { $first: "$otherUser.role" },
+          type: { $first: "$otherUser.type" },
           userId: { $first: "$otherUser._id" }
         }
       },

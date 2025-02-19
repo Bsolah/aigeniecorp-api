@@ -8,10 +8,14 @@ import mongoose from "mongoose";
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { username, email, password, role, status } = req.body;
-    const user = new User({ username, email, password, role, status });
+    let userType;
+    const { username, email, password, type, status } = req.body;
+    if(!type) {
+      userType = 'Agent';
+    }
+    const user = new User({ username, email, password, type: userType, status });
     await user.save();
-    res.status(201).send({ message: "Registration successful", data: null });
+    res.status(201).send({ message: "Registration successful" });
   } catch (error: any) {
     res.status(500).send(error.message);
   }
@@ -34,8 +38,8 @@ export const login = async (req: Request, res: Response): Promise<any> => {
 
       res.cookie("authToken", token, {
         httpOnly: true,
-        secure: isProduction ? true : false, // Only secure in production
-        sameSite: isProduction ? "none" :  "lax", // "None" for cross-origin, "Lax" for local testing
+        secure: true, // isProduction ? true : false, // Only secure in production
+        sameSite: "none", // Production ? "none" :  "lax", // "None" for cross-origin, "Lax" for local testing
         path: "/",        // Allows the cookie to be sent on all routes
         maxAge: 3600000, // 1 hour
       });
