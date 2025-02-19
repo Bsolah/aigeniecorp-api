@@ -1,0 +1,1 @@
+import{r as d,C as e,j as t}from"./index-CJPFVNcn.js";import{C as n}from"./Card-DxGgCpey.js";const i=({children:r,className:o})=>{const{isCardShadow:s,isBorderRadius:a}=d.useContext(e);return t.jsx(n,{className:`card p-[10px]  ${o} ${s?" shadow-md dark:shadow-none":"shadow-none border border-ld"} `,style:{borderRadius:`${a}px`},children:r})};export{i as C};

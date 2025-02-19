@@ -1,0 +1,1 @@
+import{j as o,L as s}from"./index-CJPFVNcn.js";import{L as r}from"./aigenie_logo-gb7FaPmB.js";const i=()=>o.jsx(s,{to:"/",children:o.jsx("img",{src:r,alt:"logo",width:50,className:"block"})});export{i as F};
