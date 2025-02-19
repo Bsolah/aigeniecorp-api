@@ -4,6 +4,7 @@ import {
   login,
   forgotPassword,
   resetPassword,
+  checkAuth,
   logout,
   searchUserByName,
   createAgent,
@@ -21,6 +22,7 @@ const router = express.Router();
 
 router.post("/register", register);
 router.post("/login", login);
+router.get("/check-auth", checkAuth);
 router.get(
   "/google-auth",
   passport.authenticate("google", {
