@@ -39,7 +39,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
       res.cookie("authToken", token, {
         httpOnly: true,
         secure: true, // isProduction ? true : false, // Only secure in production
-        sameSite: "lax", // Production ? "none" :  "lax", // "None" for cross-origin, "Lax" for local testing
+        sameSite: "none", // Production ? "none" :  "lax", // "None" for cross-origin, "Lax" for local testing
         path: "/",        // Allows the cookie to be sent on all routes
         maxAge: 3600000, // 1 hour
       });
