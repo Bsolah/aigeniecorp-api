@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import User, { IUser } from "../models/User";
+import User from "../models/User";
+import Organization from "../models/Organization";
 import { generateResetPasswordToken } from "../utils/generateAccessToken";
 import generateSecurePassword from "../utils/generateAndHashSocialAuthPassword";
 import Invitation from "../models/Invitation";
@@ -8,13 +9,27 @@ import mongoose from "mongoose";
 
 export const register = async (req: Request, res: Response) => {
   try {
-    let userType;
-    const { username, email, password, type, status } = req.body;
-    if(!type) {
-      userType = 'Agent';
-    }
-    const user = new User({ username, email, password, type: userType, status });
+    let orgMap;
+    const { username, org, email, password, type, status } = req.body;
+
+    const user = new User({ username, email, password, type, status });
     await user.save();
+
+    const newOrg = await Organization.create({
+      name: org, creator: user?.id,
+    });
+
+    orgMap = [{
+      name: newOrg._id,
+      role: "admin"
+    }];
+
+    await User.findByIdAndUpdate(
+      user._id,
+      { organizations: orgMap },
+      { new: true },
+    );
+
     res.status(201).send({ message: "Registration successful" });
   } catch (error: any) {
     res.status(500).send(error.message);
@@ -26,7 +41,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user || !(await user.comparePassword(password))) {
-       return res.status(400).send("Invalid email or password.");
+      return res.status(400).send("Invalid email or password.");
     } else {
       const token = jwt.sign(
         { id: user._id, email: user.email },
@@ -39,29 +54,28 @@ export const login = async (req: Request, res: Response): Promise<any> => {
       res.cookie("authToken", token, {
         httpOnly: true,
         secure: isProduction ? true : false, // Only secure in production
-        sameSite: isProduction ? "none" :  "lax", // "None" for cross-origin, "Lax" for local testing
+        sameSite: isProduction ? "none" : "lax", // "None" for cross-origin, "Lax" for local testing
         path: "/",        // Allows the cookie to be sent on all routes
         maxAge: 3600000, // 1 hour
       });
 
-      return res.status(200).json({ message: "Login successful" });
+      return res.status(200).json({ message: "Login successful", user: user });
     }
   } catch (error: any) {
-     return res.status(500).send(error.message);
+    return res.status(500).send(error.message);
   }
 };
 
 export const checkAuth = async (req: Request, res: Response): Promise<any> => {
   try {
-    console.log('Cookies ', req)
     const token = req.cookies.authToken;
     if (!token) { return res.status(401).json({ message: "Not authenticated" }); }
-  
+
     jwt.verify(token, process.env.JWT_SECRET!, (err: any, decoded: any) => {
       if (err) { return res.status(401).json({ message: "Invalid token" }); }
       return res.json({ user: decoded });
     });
-  } catch(error: any) {
+  } catch (error: any) {
     return res.status(500).send(error.message);
   }
 }

@@ -94,13 +94,13 @@ export const getChatByRoomId = async (req: Request, res: Response) => {
     if (page) {
       const chats = await Chat.find({ chatRoomId })
         .sort({ timestamp: 1 })
-        .populate("senderId receiverId", "username email id image role")
+        .populate("senderId receiverId", "username email id image type")
         .skip(skip)
         .limit(50);
       res.status(200).json({ chats });
     } else {
       const chats = await Chat.find({ chatRoomId })
-        .populate("senderId receiverId", "username email id image role")
+        .populate("senderId receiverId", "username email id image type")
         .sort({ timestamp: 1 });
 
       // const response =   groupMessagesByConversation(chats, req?.user?.id);
@@ -116,6 +116,12 @@ export const getChatByRoomId = async (req: Request, res: Response) => {
 export const getAllChatByUserId = async (req: Request, res: Response) => {
   const userId = req.user?.id;
   try {
+
+    const botUser = await User.findOne({type: 'Agent'});
+
+    const botUserId: any = botUser?._id;
+
+    console.log('botUser ', botUser)
 
     const chatRooms = await Chat.aggregate([
       {
@@ -183,7 +189,7 @@ export const getAllChatByUserId = async (req: Request, res: Response) => {
           lastMessageDate: 1,
           status: 1, // You can change this logic for actual status
           name: 1,
-          role: 1,
+          type: 1,
           userId: 1,
           _id: 0
         }

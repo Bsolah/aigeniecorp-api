@@ -26,7 +26,7 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     image: { type: String, required: false }, // URL of the profile photo
-    type: { type: String, },
+    type: { type: String,  required: true},
     status: { type: String, enum: Object.values(UserStatus), required: false },
     password: { type: String, required: true },
     organizations: [
