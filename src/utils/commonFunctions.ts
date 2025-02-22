@@ -76,26 +76,36 @@ export const groupMessagesByConversation = (chats: any[], userId: any) => {
 
 
 export const convertToStructuredObject = (inputString: string, internalAI: string, externalAI: string, content: String) => {
+  let response = inputString;
+  let followUpQuestions: any = [];
+  
+  console.log('input string ', inputString)
+  
   // Extract the response part from the input string
-  const responseMatch = inputString.split("r1");
+  const responseMatch = inputString?.split("r1");
 
-  let response = responseMatch
-    ? responseMatch[1].trim().replace(/^\.response:\s*/, "")
+ 
+  
+  if(inputString.includes("r1")) {
+  response = responseMatch
+    ? responseMatch[1]?.trim()?.replace(/^\.response\s*/, "").replace(":", "")
     : "";
 
   // Extract the follow-up questions part from the input string
   const followUpQuestionsString = responseMatch
-    ? responseMatch[2].replace(/^\.followUpQuestions:\s*/, "")
+    ? responseMatch[2]?.replace(/^\.followUpQuestions\s*/, "").replace(":", "")
     : "";
 
   // Split the follow-up questions into an array by identifying the pattern "1. ", "2. ", etc.
-  const followUpQuestions = followUpQuestionsString
+    followUpQuestions = followUpQuestionsString
     .split(". ") // Split by ". " to separate each question
     .filter((question) => question) // Remove empty elements
     .map(
       (question) =>
-        (question = question.trim().substring(0, question.length - 2)),
+        (question = question?.trim().substring(0, question.length - 2)),
     ); // Trim any leading/trailing spaces
+
+  }
 
 
   // SENTITIVE HARD CODING 1

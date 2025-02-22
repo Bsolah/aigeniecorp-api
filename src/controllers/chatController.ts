@@ -6,12 +6,16 @@ import {
   convertToStructuredObject,
 } from "../utils/commonFunctions";
 import { geminiAI, geminiAIMedia, openAiChat, deepSeekChat } from "../utils/aiModels";
-import { uploadFile } from "../utils/s3utils";
+import { uploadFile, getSignedUrl } from "../utils/s3utils";
 
 export const postChat = async (req: Request, res: Response) => {
   const { content, receiverId, chatRoomId, type, internalAI, externalAI } = req.body;
   const { senderId } = req.params;
-  const switchAI  = JSON.parse(externalAI);
+
+  if(!externalAI) {
+    res.status(500).json({ message: "Select an AI Model "});
+  }
+  const switchAI = JSON.parse(externalAI);
 
 
   let attachmentUrl;
@@ -21,7 +25,7 @@ export const postChat = async (req: Request, res: Response) => {
   }
 
   try {
-    const chat = new Chat({ content, chatRoomId, senderId, receiverId, type });
+    const chat = new Chat({ content, chatRoomId, senderId, attachments: attachmentUrl, receiverId, type });
     await chat.save();
 
     const user = await User.findById(receiverId);
@@ -46,9 +50,9 @@ export const postChat = async (req: Request, res: Response) => {
         console.log('ai 2 ', switchAI.gai);
         console.log('ai 3 ', switchAI.oai);
 
-        if(switchAI['gai']) {
+        if (switchAI['gai']) {
           aiResponse = await geminiAI(content);
-        } 
+        }
         if (switchAI['oai']) {
           aiResponse = geminiAI(content) // openAiChat(content);
         }
@@ -62,14 +66,15 @@ export const postChat = async (req: Request, res: Response) => {
       );;
 
       const newChat = {
-        content: convertedResponse.response,
-        prompts: convertedResponse.prompts,
+        content: convertedResponse?.response,
+        prompts: convertedResponse?.prompts,
         chatRoomId: chatRoomId,
         senderId: receiverId,
         receiverId: senderId,
-        attachments: attachmentUrl,
         type: 'text',
       };
+
+      console.log('new chats ', newChat)
       const chat = new Chat(newChat);
 
       await chat.save();
@@ -91,21 +96,47 @@ export const getChatByRoomId = async (req: Request, res: Response) => {
 
   // Sort by timestamp in ascending order
   try {
+    let chats;
     if (page) {
-      const chats = await Chat.find({ chatRoomId })
-        .sort({ timestamp: 1 })
+      chats = await Chat.find({ chatRoomId })
+        .sort({ timestamp: -1 })
         .populate("senderId receiverId", "username email id image type")
         .skip(skip)
         .limit(50);
-      res.status(200).json({ chats });
     } else {
-      const chats = await Chat.find({ chatRoomId })
+      chats = await Chat.find({ chatRoomId })
         .populate("senderId receiverId", "username email id image type")
-        .sort({ timestamp: 1 });
+        .sort({ timestamp: -1 });
 
-      // const response =   groupMessagesByConversation(chats, req?.user?.id);
-      res.status(200).json(chats);
+      chats = await Promise.all(
+        chats.map(async (chat: any) => {
+          if (!chat.attachments) return chat; // Skip if no attachment
+
+          try {
+
+            const url = new URL(chat.attachments); // Parse the URL
+            const parts = url.pathname.split("/"); // Split path by "/"
+            const bucketName = parts[1]; // Bucket name (2nd part of the path)
+            const fileName = decodeURIComponent(parts.slice(2).join("/")); // Remaining part as filename
+           
+            // Ensure bucket and file names are valid
+            if (!bucketName || !fileName) {
+              console.warn(`Invalid attachment URL for chat ID: ${chat._id}`);
+              return chat;
+            }
+            console.log('raw signurl ', await getSignedUrl(fileName, bucketName))
+            console.log('get bucketName chats ', bucketName)
+            console.log('get fileName chats ', fileName)
+
+            chat.attachments = await getSignedUrl(fileName, bucketName);
+          } catch (error) {
+            console.error("Error generating signed URL: ", error);
+          }
+          return chat;
+        })
+      )
     }
+    res.status(200).json(chats);
   } catch (err) {
     res
       .status(500)
@@ -117,11 +148,6 @@ export const getAllChatByUserId = async (req: Request, res: Response) => {
   const userId = req.user?.id;
   try {
 
-    const botUser = await User.findOne({type: 'Agent'});
-
-    const botUserId: any = botUser?._id;
-
-    console.log('botUser ', botUser)
 
     const chatRooms = await Chat.aggregate([
       {

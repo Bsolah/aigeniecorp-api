@@ -46,7 +46,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
       const token = jwt.sign(
         { id: user._id, email: user.email },
         process.env.JWT_SECRET!,
-        { expiresIn: "1h" },
+        { expiresIn: "24h" },
       );
 
       const isProduction = process.env.NODE_ENV === "production";
@@ -56,7 +56,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
         secure: isProduction ? true : false, // Only secure in production
         sameSite: isProduction ? "none" : "lax", // "None" for cross-origin, "Lax" for local testing
         path: "/",        // Allows the cookie to be sent on all routes
-        maxAge: 3600000, // 1 hour
+        maxAge: 86400000, // 1 day
       });
 
       return res.status(200).json({ message: "Login successful", user: user });
