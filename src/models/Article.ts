@@ -8,6 +8,7 @@ export interface IArticle extends MongooseDocument {
   name: string;
   content: string;
   createdBy: mongoose.Types.ObjectId;
+  organizationId: mongoose.Types.ObjectId;
   teamAccess: { user: mongoose.Types.ObjectId; role: string }[];
   tags: string[];
   categories: string[];
@@ -24,6 +25,10 @@ export const articleSchema: Schema<IArticle> = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User"
     },
+    organizationId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Organization",
+      },
     teamAccess: [
       {
         user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },

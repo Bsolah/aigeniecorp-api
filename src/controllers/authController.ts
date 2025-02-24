@@ -6,6 +6,7 @@ import { generateResetPasswordToken } from "../utils/generateAccessToken";
 import generateSecurePassword from "../utils/generateAndHashSocialAuthPassword";
 import Invitation from "../models/Invitation";
 import mongoose from "mongoose";
+import Folder from "../models/Folder";
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -15,8 +16,14 @@ export const register = async (req: Request, res: Response) => {
     const user = new User({ username, email, password, type, status });
     await user.save();
 
+    // Create organization
     const newOrg = await Organization.create({
       name: org, creator: user?.id,
+    });
+
+    // Create organization knowledge base root folder
+    await Folder.create({
+      name: newOrg.name, createdBy: user?.id, organizationId: newOrg._id
     });
 
     orgMap = [{

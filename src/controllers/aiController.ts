@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import multer from "multer";
 import dotenv from "dotenv";
+import { geminiAI, geminiAIMedia, openAiChat, deepSeekChat } from "../utils/aiModels";
+
 dotenv.config();
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
@@ -9,6 +11,31 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage }).single("file");
+
+export const askWithAI = async (req: Request, res: Response) => {
+  const { query } = req.body;
+  const file = req.file;
+
+
+  console.log('file ', file)
+  try {
+  
+        let aiResponse = query;
+        if (file && file?.mimetype) {
+          aiResponse = await geminiAIMedia(
+            file.buffer,
+            query,
+            file.mimetype,
+          );
+        } else {
+          aiResponse = await geminiAI(query);
+        }
+    
+    res.status(200).json({ result: aiResponse.response.text() });
+  } catch (err) {
+    res.status(500).json({ message: "Error communicating with OpenAI" });
+  }
+};
 
 export const chatWithAI = async (req: Request, res: Response) => {
   const { query } = req.body;
@@ -49,4 +76,3 @@ export const uploadWithAI = async (req: Request, res: Response) => {
     }
   });
 };
-

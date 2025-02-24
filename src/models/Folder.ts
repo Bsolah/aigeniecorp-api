@@ -6,10 +6,11 @@ export interface IFolder extends Document {
   parent: mongoose.Types.ObjectId;
   child: mongoose.Types.ObjectId[];
   articles: mongoose.Types.ObjectId[];
+  organizationId: mongoose.Types.ObjectId;
 }
 
 const folderSchema: Schema<IFolder> = new mongoose.Schema({
-  name: { type: String, required: true },
+  name: { type: String },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -32,6 +33,11 @@ const folderSchema: Schema<IFolder> = new mongoose.Schema({
       ref: "Article",
     },
   ],
+  organizationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Organization",
+    required: true,
+  },
 });
 
 const Folder: Model<IFolder> = mongoose.model<IFolder>("Folder", folderSchema);

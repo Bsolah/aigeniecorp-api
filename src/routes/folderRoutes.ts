@@ -14,4 +14,5 @@ router.post("/create", authMiddleware, createFolder);
 router.put("/edit/:id", authMiddleware, editFolder);
 router.get("/all", authMiddleware, getRootFolders);
 router.get("/:id", authMiddleware, getFolder);
+// router.get("/:id", authMiddleware, deleteFolder);
 export default router;

@@ -54,7 +54,7 @@ export const postChat = async (req: Request, res: Response) => {
           aiResponse = await geminiAI(content);
         }
         if (switchAI['oai']) {
-          aiResponse = geminiAI(content) // openAiChat(content);
+          aiResponse = await openAiChat(content);
         }
         if (switchAI['dai']) {
           aiResponse = geminiAI(content) // deepSeekChat(content);
