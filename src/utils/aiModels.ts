@@ -24,7 +24,7 @@ const deepSeekClient = new OpenAI({
 
 export const geminiAI = async (query: string) => {
   const result = await model.generateContent(
-    `${query} Give response and then \nGenerate three follow-up questions that are less than 40 characters that the user can ask. it should be in the form r1.response  r1.followUpQuestions`,
+    `${query}`, // Give response and then \nGenerate three follow-up questions that are less than 40 characters that the user can ask. it should be in the form r1.response  r1.followUpQuestions`,
   );
   return result;
 };
@@ -35,7 +35,7 @@ export const geminiAIMedia = async (
   mimeType: string,
 ) => {
   const result = await model.generateContent([
-    `${content} Give response and then \nGenerate three follow-up questions that are less than 40 characters that the user can ask. it should be in the form r1.response  r1.followUpQuestions`,
+    `${content} `, //Give response and then \nGenerate three follow-up questions that are less than 40 characters that the user can ask. it should be in the form r1.response  r1.followUpQuestions`,
     { inlineData: { data: buffer.toString("base64"), mimeType } },
   ]);
   return result;
@@ -47,7 +47,7 @@ export const openAiChat = async (query: string) => {
     messages: [
       {
         role: "system",
-        content: `${query} Give response and then \nGenerate three follow-up questions that are less than 40 characters that the user can ask. it should be in the form r1.response  r1.followUpQuestions`,
+        content: `${query}`, // Give response and then \nGenerate three follow-up questions that are less than 40 characters that the user can ask. it should be in the form r1.response  r1.followUpQuestions`,
       },
     ],
   });
@@ -55,11 +55,10 @@ export const openAiChat = async (query: string) => {
   return result.choices[0].message.content;
 };
 
-const openAiMedia = async (
+export const openAiMedia = async (
   name: string,
   buffer: Buffer,
   content: string,
-  mimeType: string,
 ) => {
   try {
     const file = await openAiClient.files.create({
@@ -80,7 +79,7 @@ const openAiMedia = async (
     // Send message with file reference
     const message = await openAiClient.beta.threads.messages.create(thread.id, {
       role: "user",
-      content: `${content} Give response and then \nGenerate three follow-up questions that are less than 40 characters that the user can ask. it should be in the form r1.response  r1.followUpQuestions`,
+      content: `${content}`, // Give response and then \nGenerate three follow-up questions that are less than 40 characters that the user can ask. it should be in the form r1.response  r1.followUpQuestions`,
       attachments: [{ file_id: file.id }],
     });
 

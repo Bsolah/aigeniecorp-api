@@ -114,13 +114,12 @@ export const getUserOrganizations = async (
   next: NextFunction
 ) => {
   try {
-    const user = await User.findById(req.user?.id)
-      .populate("organizations.organization")
-      .select("organizations _id name email");
-    if (!user) {
-      res.status(404).json({ message: "User not found" });
+    const userOrg = await Organization.findOne({creator: req.user?.id})
+
+    if (!userOrg) {
+      res.status(404).json({ message: "Organization not found" });
     } else {
-      res.status(200).json({ data: user });
+      res.status(200).json({ data: userOrg });
     }
   } catch (error: any) {
     res.status(500).send(error.message);

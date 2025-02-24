@@ -21,6 +21,8 @@ export const register = async (req: Request, res: Response) => {
       name: org, creator: user?.id,
     });
 
+    console.log("new org ", newOrg)
+
     // Create organization knowledge base root folder
     await Folder.create({
       name: newOrg.name, createdBy: user?.id, organizationId: newOrg._id

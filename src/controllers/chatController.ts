@@ -5,7 +5,7 @@ import User from "../models/User";
 import {
   convertToStructuredObject,
 } from "../utils/commonFunctions";
-import { geminiAI, geminiAIMedia, openAiChat, deepSeekChat } from "../utils/aiModels";
+import { geminiAI, geminiAIMedia, openAiChat, deepSeekChat, openAiMedia } from "../utils/aiModels";
 import { uploadFile, getSignedUrl } from "../utils/s3utils";
 
 export const postChat = async (req: Request, res: Response) => {
@@ -38,17 +38,21 @@ export const postChat = async (req: Request, res: Response) => {
 
       let aiResponse = content;
       if (file && file?.mimetype) {
+        if (switchAI['gai']) {
         aiResponse = await geminiAIMedia(
           file.buffer,
           content,
           file.mimetype,
         );
+        aiResponse = aiResponse.response.text()
       } else {
-
-        console.log('ai ', switchAI);
-        console.log('ai ', switchAI['dai']);
-        console.log('ai 2 ', switchAI.gai);
-        console.log('ai 3 ', switchAI.oai);
+        aiResponse = await openAiMedia(
+          file?.originalname,
+          file.buffer,
+          content,
+        );
+      }
+      } else {
 
         if (switchAI['gai']) {
           aiResponse = await geminiAI(content);
@@ -64,13 +68,13 @@ export const postChat = async (req: Request, res: Response) => {
 
       console.log ('ai res ', aiResponse)
 
-      const convertedResponse = convertToStructuredObject(
-        aiResponse, internalAI, externalAI, content
-      );;
+      // const convertedResponse = convertToStructuredObject(
+      //   aiResponse, internalAI, externalAI, content
+      // );;
 
       const newChat = {
-        content: convertedResponse?.response,
-        prompts: convertedResponse?.prompts,
+        content: aiResponse, // convertedResponse?.response,
+        prompts: [], // convertedResponse?.prompts,
         chatRoomId: chatRoomId,
         senderId: receiverId,
         receiverId: senderId,
