@@ -52,17 +52,20 @@ export const postChat = async (req: Request, res: Response) => {
 
         if (switchAI['gai']) {
           aiResponse = await geminiAI(content);
+          aiResponse = aiResponse.response.text()
         }
         if (switchAI['oai']) {
           aiResponse = await openAiChat(content);
         }
         if (switchAI['dai']) {
-          aiResponse = geminiAI(content) // deepSeekChat(content);
+          aiResponse = openAiChat(content); //geminiAI(content) // deepSeekChat(content);
         }
       }
 
+      console.log ('ai res ', aiResponse)
+
       const convertedResponse = convertToStructuredObject(
-        aiResponse.response.text(), internalAI, externalAI, content
+        aiResponse, internalAI, externalAI, content
       );;
 
       const newChat = {

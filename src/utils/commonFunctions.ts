@@ -97,10 +97,8 @@ export const convertToStructuredObject = (inputString: string, internalAI: strin
     : "";
 
   // Split the follow-up questions into an array by identifying the pattern "1. ", "2. ", etc.
-    followUpQuestions = followUpQuestionsString
-    .split(". ") // Split by ". " to separate each question
-    .filter((question) => question) // Remove empty elements
-    .map(
+    followUpQuestions = followUpQuestionsString?.split(". ")?.filter((question) => question) 
+    ?.map(
       (question) =>
         (question = question?.trim().substring(0, question.length - 2)),
     ); // Trim any leading/trailing spaces
