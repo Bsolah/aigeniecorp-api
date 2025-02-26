@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import Anthropic from "@anthropic-ai/sdk";
 import multer from 'multer';
 import OpenAI, { toFile } from "openai";
 import { Readable } from "stream";
@@ -20,6 +21,12 @@ const openAiClient = new OpenAI({
 const deepSeekClient = new OpenAI({
   baseURL: "https://api.deepseek.com",
   apiKey: process.env.DEEPSEEK_API_KEY as string,
+});
+
+
+const anthropic = new Anthropic({
+  // defaults to process.env["ANTHROPIC_API_KEY"]
+  apiKey: "my_api_key",
 });
 
 export const geminiAI = async (query: string) => {
@@ -46,7 +53,7 @@ export const openAiChat = async (query: string) => {
     model: "gpt-3.5-turbo",
     messages: [
       {
-        role: "system",
+        role: "user",
         content: `${query}`, // Give response and then \nGenerate three follow-up questions that are less than 40 characters that the user can ask. it should be in the form r1.response  r1.followUpQuestions`,
       },
     ],
@@ -129,7 +136,7 @@ export const deepSeekChat = async (query: string) => {
     model: "deepseek-chat",
     messages: [
       {
-        role: "system",
+        role: "user",
         content: `${query} Give response and then \nGenerate three follow-up questions that are less than 40 characters that the user can ask. it should be in the form r1.response  r1.followUpQuestions`,
       },
     ],
@@ -138,7 +145,39 @@ export const deepSeekChat = async (query: string) => {
   return result.choices[0].message.content;
 };
 
-const deepSeekMedia = async (
+export const deepSeekMedia = async (
+  name: string,
+  buffer: Buffer,
+  content: string,
+  mimeType: string
+) => {
+  try {
+    const response = await deepSeekClient.files;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const claudeChat = async (query: string) => {
+  const msg: any = await anthropic.messages.create({
+    model: "claude-3-7-sonnet-20250219",
+    max_tokens: 4096,
+    temperature: 1,
+    messages: [{
+      role: "user",
+      content: query
+    }],
+    thinking: {
+      "type": "enabled",
+      "budget_tokens": 3277
+    }
+  });
+
+  console.log(msg);
+  return msg?.choices[0]?.message.content;
+};
+
+export const claudeMedia = async (
   name: string,
   buffer: Buffer,
   content: string,

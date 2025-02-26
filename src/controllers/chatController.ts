@@ -62,18 +62,18 @@ export const postChat = async (req: Request, res: Response) => {
           aiResponse = await openAiChat(content);
         }
         if (switchAI['dai']) {
-          aiResponse = openAiChat(content); //geminiAI(content) // deepSeekChat(content);
+          aiResponse = await openAiChat(content); //geminiAI(content) // deepSeekChat(content);
         }
       }
 
       console.log ('ai res ', aiResponse)
 
-      // const convertedResponse = convertToStructuredObject(
-      //   aiResponse, internalAI, externalAI, content
-      // );;
+      const convertedResponse = convertToStructuredObject(
+        aiResponse, content, switchAI
+      );;
 
       const newChat = {
-        content: aiResponse, // convertedResponse?.response,
+        content: convertedResponse, // convertedResponse?.response,
         prompts: [], // convertedResponse?.prompts,
         chatRoomId: chatRoomId,
         senderId: receiverId,

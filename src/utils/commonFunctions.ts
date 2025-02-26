@@ -75,39 +75,11 @@ export const groupMessagesByConversation = (chats: any[], userId: any) => {
 };
 
 
-export const convertToStructuredObject = (inputString: string, internalAI: string, externalAI: string, content: String) => {
-  let response = inputString;
-  let followUpQuestions: any = [];
+export const convertToStructuredObject = (response: string, content: String, switchAI: any) => {
   
-  console.log('input string ', inputString)
-  
-  // Extract the response part from the input string
-  const responseMatch = inputString?.split("r1");
-
- 
-  
-  if(inputString.includes("r1")) {
-  response = responseMatch
-    ? responseMatch[1]?.trim()?.replace(/^\.response\s*/, "").replace(":", "")
-    : "";
-
-  // Extract the follow-up questions part from the input string
-  const followUpQuestionsString = responseMatch
-    ? responseMatch[2]?.replace(/^\.followUpQuestions\s*/, "").replace(":", "")
-    : "";
-
-  // Split the follow-up questions into an array by identifying the pattern "1. ", "2. ", etc.
-    followUpQuestions = followUpQuestionsString?.split(". ")?.filter((question) => question) 
-    ?.map(
-      (question) =>
-        (question = question?.trim().substring(0, question.length - 2)),
-    ); // Trim any leading/trailing spaces
-
-  }
-
 
   // SENTITIVE HARD CODING 1
-  if ((internalAI == "knb") && (externalAI == "dai") && content.toLocaleLowerCase().includes("cash")) {
+  if (switchAI['knb'] && switchAI['dai'] && content.toLocaleLowerCase().includes("cash")) {
     response = `:warning: There appears to be a discrepancy in your knowledge base. In the United States, the federal reporting threshold for cash transactions is $10,000, as mandated by the Bank Secrecy Act (BSA). This applies to two primary scenarios:
       Financial Institutions under which your "Test Company" falls: Banks and other financial entities must file a Currency Transaction Report (CTR) with the Financial Crimes Enforcement Network (FinCEN) for cash transactions exceeding $10,000 in a single business day.
       Source: FinCEN CTR Requirements.
@@ -118,7 +90,7 @@ export const convertToStructuredObject = (inputString: string, internalAI: strin
       V1. Created by "John Dow" 17.02.2020 and approved by "Alicia Johnson"  01.02.2020
       V2. Updated by "Alex Thompson "20.12.2024" and approved by "Chloe Warren" 20.12.2024`,
       console.log("both LLM")
-  } else if ((internalAI === "knb") && content.toLocaleLowerCase().includes("cash")) {
+  } else if (switchAI['knb'] && content.toLocaleLowerCase().includes("cash")) {
     response = "Based on your company knowledge base, in the article 'Company Compliance' the reporting threshold for cash transaction in the US is 50000 USD.",
       console.log("internal LLM")
   } else {
@@ -126,7 +98,7 @@ export const convertToStructuredObject = (inputString: string, internalAI: strin
   }
 
   // SENTITIVE HARD CODING 2
-  if ((externalAI == "dai") && content.toLocaleLowerCase().includes("follow-up email")) {
+  if (switchAI['dai'] && content.toLocaleLowerCase().includes("follow-up email")) {
     response = `Private Data Detected:
         CEO’s Name (Jane Doe): Personal data under GDPR (identifies an individual).
         Revenue ($2.5M): Confidential business data (not personal data, but sensitive for competition).
@@ -135,7 +107,7 @@ export const convertToStructuredObject = (inputString: string, internalAI: strin
         :warning:WARNING:warning: In line with our security policy and GDPR compliance, we have detected confidential information. An IT alert has been triggered.
         Please submit this request through our internal AI model, in line with our security policy.`;
     console.log("one external LLM")
-  } else if ((internalAI == "knb") && content.toLocaleLowerCase().includes("follow-up email")) {
+  } else if (switchAI['knb'] && content.toLocaleLowerCase().includes("follow-up email")) {
     response = ` Subject: Follow-Up & Exclusive Offer for Acme Corp 
     Hi Acme Corp,
     I hope you’re well. I wanted to follow up on our recent discussion and congratulate your team on achieving an impressive Q3 revenue of $2.5M. Please extend my congratulations to Jane Doe and the entire Acme Corp team for this milestone.
@@ -150,8 +122,6 @@ export const convertToStructuredObject = (inputString: string, internalAI: strin
   }
 
   // Return the structured object
-  return {
-    response: response,
-    prompts: followUpQuestions,
-  };
+  return response;
+
 };
