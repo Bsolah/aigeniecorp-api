@@ -4,16 +4,19 @@ import Chat from "../models/Chat";
 import User from "../models/User";
 import {
   convertToStructuredObject,
+  hasDataLeak,
 } from "../utils/commonFunctions";
 import { geminiAI, geminiAIMedia, openAiChat, deepSeekChat, openAiMedia } from "../utils/aiModels";
 import { uploadFile, getSignedUrl } from "../utils/s3utils";
 
-export const postChat = async (req: Request, res: Response) => {
-  const { content, receiverId, chatRoomId, type, internalAI, externalAI } = req.body;
+export const postChat = async (req: Request, res: Response): Promise<any> => {
+  const { content, receiverId, chatRoomId, type, externalAI } = req.body;
   const { senderId } = req.params;
 
-  if(!externalAI) {
-    res.status(500).json({ message: "Select an AI Model "});
+  console.log('externalAI ', externalAI)
+
+  if (!externalAI) {
+    return res.status(500).json({ message: "Select an AI Model " });
   }
   const switchAI = JSON.parse(externalAI);
 
@@ -30,7 +33,25 @@ export const postChat = async (req: Request, res: Response) => {
 
     const user = await User.findById(receiverId);
     if (!user) {
-      res.status(404).json({ error: `User not found by id ${receiverId}` });
+      return res.status(404).json({ error: `User not found by id ${receiverId}` });
+    }
+
+    if (hasDataLeak(content)) {
+
+      const newChat = {
+        content: "Your request contains **sensitive** information and cannot be processed",
+        prompts: [],
+        chatRoomId: chatRoomId,
+        senderId: receiverId,
+        receiverId: senderId,
+        type: 'text',
+      };
+      const chat = new Chat(newChat);
+
+      await chat.save();
+    return res
+      .status(201)
+      .send(`Chat with chatRoomId ${chatRoomId} save successfully.`);
     }
 
     // Check if the recipient user is a Bot
@@ -39,24 +60,24 @@ export const postChat = async (req: Request, res: Response) => {
       let aiResponse = content;
       if (file && file?.mimetype) {
         if (switchAI['gai']) {
-        aiResponse = await geminiAIMedia(
-          file.buffer,
-          content,
-          file.mimetype,
-        );
-        aiResponse = aiResponse.response.text()
-      } else {
-        aiResponse = await openAiMedia(
-          file?.originalname,
-          file.buffer,
-          content,
-        );
-      }
+          aiResponse = await geminiAIMedia(
+            file.buffer,
+            content,
+            file.mimetype,
+          );
+          aiResponse = aiResponse.response.text()
+        } else {
+          aiResponse = await openAiMedia(
+            file?.originalname,
+            file.buffer,
+            content,
+          );
+        }
       } else {
 
         if (switchAI['gai']) {
           aiResponse = await geminiAI(content);
-          aiResponse = aiResponse.response.text()
+          aiResponse = aiResponse.response.text();
         }
         if (switchAI['oai']) {
           aiResponse = await openAiChat(content);
@@ -66,7 +87,11 @@ export const postChat = async (req: Request, res: Response) => {
         }
       }
 
-      console.log ('ai res ', aiResponse)
+      if (!switchAI['gai'] && !switchAI['oai'] && !switchAI['dai'] && !switchAI['knb']) {
+        aiResponse = "**Kindly Select an AI Model** before the chat can be processed";
+      }
+
+      console.log('ai res ', aiResponse)
 
       const convertedResponse = convertToStructuredObject(
         aiResponse, content, switchAI
@@ -125,7 +150,7 @@ export const getChatByRoomId = async (req: Request, res: Response) => {
             const parts = url.pathname.split("/"); // Split path by "/"
             const bucketName = parts[1]; // Bucket name (2nd part of the path)
             const fileName = decodeURIComponent(parts.slice(2).join("/")); // Remaining part as filename
-           
+
             // Ensure bucket and file names are valid
             if (!bucketName || !fileName) {
               console.warn(`Invalid attachment URL for chat ID: ${chat._id}`);

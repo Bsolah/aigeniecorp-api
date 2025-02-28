@@ -125,3 +125,21 @@ export const convertToStructuredObject = (response: string, content: String, swi
   return response;
 
 };
+
+
+export const hasDataLeak = (content: string) => { 
+
+  // Regex patterns for detecting data leaks
+const patterns = {
+  Email: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/,
+  PhoneNumber: /\+?\d{1,4}?[-.\s]??\(?\d{1,4}?\)?[-.\s]??\d{1,4}[-.\s]??\d{1,9}/,
+  CreditCard: /\b(?:\d[ -]*?){13,16}\b/,
+  IPAddress: /\b(?:\d{1,3}\.){3}\d{1,3}\b/,
+  APIKey: /\b(api|key|token|secret)[\s=:]+[A-Za-z0-9_\-]{10,}/i,
+  SSN: /\b\d{3}-\d{2}-\d{4}\b/,
+  Password: /\b(password|pwd|pass)[\s:=]+[A-Za-z0-9@#$%^&+=!]{4,}/i
+};
+
+  return Object.values(patterns).some(pattern => pattern.test(content));
+
+}
