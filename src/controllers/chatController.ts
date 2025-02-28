@@ -96,6 +96,7 @@ export const postChat = async (req: Request, res: Response): Promise<any> => {
       const convertedResponse = convertToStructuredObject(
         aiResponse, content, switchAI
       );;
+      aiResponse = null
 
       const newChat = {
         content: convertedResponse, // convertedResponse?.response,
