@@ -5,6 +5,7 @@ import {
   editFolder,
   getFolder,
   getRootFolders,
+  deleteFolder
 } from "../controllers/folderController";
 import authMiddleware from "../middlewares/authMiddleware";
 
@@ -14,5 +15,5 @@ router.post("/create", authMiddleware, createFolder);
 router.put("/edit/:id", authMiddleware, editFolder);
 router.get("/all", authMiddleware, getRootFolders);
 router.get("/:id", authMiddleware, getFolder);
-// router.get("/:id", authMiddleware, deleteFolder);
+router.delete("/delete/:id", authMiddleware, deleteFolder);
 export default router;

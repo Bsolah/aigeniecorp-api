@@ -117,6 +117,20 @@ export const publishArticle = async (req: Request, res: Response) => {
 
 export const deleteArticle = async (req: Request, res: Response) => {
   try {
+
+    const articleId = await Article.findById(req.params.id);
+    if (!articleId) {
+      res
+        .status(404)
+        .json({ error: "Article not found" });   
+    }
+
+    // Remove the article from its parent folder
+    await Folder.updateOne(
+      { _id: articleId?.parent },
+      { $pull: { articles: req.params.id } }
+    );
+
     const article = await Article.findOneAndDelete({
       _id: req.params.id,
       $or: [

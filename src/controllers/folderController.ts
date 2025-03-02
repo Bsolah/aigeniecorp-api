@@ -117,6 +117,8 @@ export const getFolder = async (req: Request, res: Response): Promise<any> => {
 export const deleteFolder = async (req: Request, res: Response) => {
   try {
     const folder = await Folder.findById(req.params.id);
+
+    console.log('folder ', folder);
     if (!folder) {
       res.status(404).json({ error: "Folder not found" });
     } else {
@@ -129,7 +131,15 @@ export const deleteFolder = async (req: Request, res: Response) => {
           message: "Folder has articles. Please delete them first",
         });
       } else {
+
+        // Remove the article from its parent folder
+        await Folder.updateOne(
+          { _id: folder.parent },
+          { $pull: { child: req.params.id } }
+        );
+
         await Folder.findByIdAndDelete(req.params.id);
+
         res.status(200).json({
           success: true,
           message: "Folder deleted successfully",

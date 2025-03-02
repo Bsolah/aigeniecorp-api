@@ -18,7 +18,7 @@ export const register = async (req: Request, res: Response) => {
 
     // Create organization
     const newOrg = await Organization.create({
-      name: org, creator: user?.id,
+      name: `${org} Records`, creator: user?.id,
     });
 
     console.log("new org ", newOrg)
