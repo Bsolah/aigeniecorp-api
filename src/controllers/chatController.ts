@@ -49,9 +49,9 @@ export const postChat = async (req: Request, res: Response): Promise<any> => {
       const chat = new Chat(newChat);
 
       await chat.save();
-    return res
-      .status(201)
-      .send(`Chat with chatRoomId ${chatRoomId} save successfully.`);
+      return res
+        .status(201)
+        .send(`Chat with chatRoomId ${chatRoomId} save successfully.`);
     }
 
     // Check if the recipient user is a Bot
@@ -122,59 +122,47 @@ export const postChat = async (req: Request, res: Response): Promise<any> => {
 };
 
 export const getChatByRoomId = async (req: Request, res: Response) => {
+
   const { chatRoomId } = req.params;
-  // Sort by timestamp in ascending order
-  const { page } = req.query;
+  const { page }: any = req.query;
   const skip = page ? parseInt(page.toString()) * 50 : 0;
 
-  // Sort by timestamp in ascending order
   try {
-    let chats;
-    if (page) {
-      chats = await Chat.find({ chatRoomId })
-        .sort({ timestamp: -1 })
-        .populate("senderId receiverId", "username email id image type")
-        .skip(skip)
-        .limit(50);
-    } else {
-      chats = await Chat.find({ chatRoomId })
-        .populate("senderId receiverId", "username email id image type")
-        .sort({ timestamp: -1 });
+    let chats = await Chat.find({ chatRoomId })
+      .populate("senderId receiverId", "username email id image type")
+      .sort({ timestamp: 1 }) // Ensure ascending order by timestamp
+      .skip(skip)
+      .limit(page && 50);
 
-      chats = await Promise.all(
-        chats.map(async (chat: any) => {
-          if (!chat.attachments) return chat; // Skip if no attachment
+    // Process attachments without breaking the order
+    chats = await Promise.all(
+      chats.map(async (chat: any) => {
+        if (!chat.attachments) return chat; // Skip if no attachments
 
-          try {
+        try {
+          const url = new URL(chat.attachments);
+          const parts = url.pathname.split("/");
+          const bucketName = parts[1];
+          const fileName = decodeURIComponent(parts.slice(2).join("/"));
 
-            const url = new URL(chat.attachments); // Parse the URL
-            const parts = url.pathname.split("/"); // Split path by "/"
-            const bucketName = parts[1]; // Bucket name (2nd part of the path)
-            const fileName = decodeURIComponent(parts.slice(2).join("/")); // Remaining part as filename
-
-            // Ensure bucket and file names are valid
-            if (!bucketName || !fileName) {
-              console.warn(`Invalid attachment URL for chat ID: ${chat._id}`);
-              return chat;
-            }
-            console.log('raw signurl ', await getSignedUrl(fileName, bucketName))
-            console.log('get bucketName chats ', bucketName)
-            console.log('get fileName chats ', fileName)
-
+          if (bucketName && fileName) {
             chat.attachments = await getSignedUrl(fileName, bucketName);
-          } catch (error) {
-            console.error("Error generating signed URL: ", error);
           }
-          return chat;
-        })
-      )
-    }
+        } catch (error) {
+          console.error("Error generating signed URL: ", error);
+        }
+        return chat;
+      })
+    );
+
+    // Final sort after processing to preserve order
+    chats.sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
     res.status(200).json(chats);
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Error getting chat from chatRoomId " + chatRoomId, err });
+    res.status(500).json({ message: `Error getting chats for chatRoomId ${chatRoomId}`, err });
   }
+
 };
 
 export const getAllChatByUserId = async (req: Request, res: Response) => {
