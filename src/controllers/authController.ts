@@ -7,6 +7,15 @@ import generateSecurePassword from "../utils/generateAndHashSocialAuthPassword";
 import Invitation from "../models/Invitation";
 import mongoose from "mongoose";
 import Folder from "../models/Folder";
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  auth: {
+    user: 'aigeniecorp@gmail.com',
+    pass: 'agym orhh tghx hoqt',
+  },
+});
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -176,34 +185,56 @@ export const getAllInvitations = async (req: Request, res: Response) => {
   }
 };
 
-export const acceptInvitation = async (req: Request, res: Response) => {
+export const acceptInvitation = async (req: Request, res: Response): Promise<any> => {
+  const { token, username, password } = req.body;
+
   try {
-    const invitation = await Invitation.findOne({
-      _id: req.params.id,
-      email: req.user?.email,
-      isAccepted: false,
-    });
-    if (invitation) {
-      const user = await User.findOne({ email: req.user?.email });
-      if (!user) {
-        res.status(404).json({ message: "User not found" });
-      } else {
-        user.organizations.push({
-          organization:
-            invitation.organization as unknown as mongoose.Types.ObjectId,
-          role: invitation.role as any,
-        });
-      }
-      invitation.isAccepted = true;
-      await invitation.save();
-      await user?.save();
-      res.status(200).json({ message: "Invitation accepted" });
-    } else {
-      res
-        .status(404)
-        .json({ message: "Invitation not found or has been accepted" });
+    const invite = await Invitation.findOne({ token, expiresAt: { $gt: new Date() } });
+    if (!invite) {
+      return res.status(400).json({ error: 'Invalid or expired invite.' });
     }
-  } catch (error: any) {
-    res.status(500).send(error.message);
+
+    // const hashedPassword = await bcrypt.hash(password, 10);
+    await User.create({ email: invite.email, username, password });
+
+    await Invitation.deleteOne({ _id: invite._id });
+
+    res.status(201).json({ message: 'User registered successfully!' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to accept invite.' });
+  }
+};
+
+export const sendInvitation = async (req: Request, res: Response): Promise<any> => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  try {
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already invited' });
+    }
+
+    // Save to DB
+    // const newUser = new User({ email });
+    // await newUser.save();
+
+    // Send invite email
+    const mailOptions = {
+      from: 'aigeniecorp@gmail.com',
+      to: email,
+      subject: 'You are invited to AI Genie Organization',
+      text: `You have been invited to join AI Genie. Click the link to accept the invitation.`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: 'Invitation sent successfully!' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
   }
 };
